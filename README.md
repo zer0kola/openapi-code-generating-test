@@ -1,27 +1,27 @@
-# OpenAPI Type Schema 테스트 자동화
+# OpenAPI Type Schema Test Automation
 
 OpenAPI를 사용해 DTO 스키마를 타입스크립트 파일로 자동 생성하면, 타입 에러를 효과적으로 해결할 수 있습니다.
 API, Query, Mutation 타입까지 자동으로 생성할 수 있어 개발 편의성이 크게 향상됩니다.
-
-## 문제점
-
-1. 하지만 자동 생성된 타입에는 `optional`과 `required` 속성의 구분이 없기 때문에, API payload 타입을 `DeepPartial`로 선언할 수밖에 없었습니다.
-2. 이 자동 생성은 CLI를 통해 이루어지며, 생성 시점에는 백엔드와 타입이 일치합니다. 하지만 백엔드에서 스키마를 변경하고 이를 반영하지 않은 채 배포하면, 불일치로 인해 에러가 발생하여 긴급 수정 및 재배포가
-   필요하게 됩니다.
-
-## 해결 방안
-
-1. **API 스키마 검증 자동화**: CI/CD 파이프라인에서 GitHub Actions를 사용해, API 스키마와 타입 정의 간의 일관성을 유지할 수 있도록 자동화된 검증 절차를 도입합니다.
-2. **AJV를 통한 스키마 검증**: 자동 생성된 TypeScript 파일을 기반으로 API 응답 스키마를 생성한 후, AJV를 활용해 런타임에서 스키마와 실제 데이터 간의 일관성을 검증하는 테스트 코드를
-   작성합니다.
-3. **수동 테스트 방지**: API 변경 시, 수동으로 타입을 수정해야 하는 번거로움을 줄이기 위해, OpenAPI 스키마에서 `optional`과 `required` 속성의 구분을 명확히 반영할 수 있는 방안을
-   모색합니다. 가능한 경우, 스키마 변동 사항을 자동으로 감지해 타입 정의를 업데이트하는 도구를 도입합니다.
-4. **릴리즈 프로세스 개선**: 배포 전에 반드시 API 스키마와 타입 정의의 싱크를 확인하고, 필요한 경우 자동으로 타입 파일을 재생성하여 배포 시점의 오류를 최소화합니다. 이를 통해 긴급 수정 및 재배포를
-   방지합니다.
 
 1. api client 생성 없이 스펙 정보만 자동 생성
 2. zod로 요청 파라미터와 응답 데이터 파싱
 3. 커스텀 transform 조건 주입
 4. zero config로 원하는 결과물 생성
 
-![img.png](img.png)
+###  
+
+- swagger-parser, openapi-types
+- openapi-jsonschema-parameters
+- json-schema-to-zod
+- handlebars
+- clipanion
+
+### process
+
+1. swagger docs url로부터 openapi spec 객체를 생성
+2. spec.components로부터 request body와 response에 대한 zod schema 생성
+3. spec.paths로부터 api endpoint 등 스펙을 원하는 객체 형태로 가공
+4. 가공된 객체를 ts 파일로 변환
+
+![img.png](public/img.png)
+![img.png](public/img(1).png)
