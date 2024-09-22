@@ -2,6 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+export { ApiError } from './core/ApiError';
+export { CancelablePromise, CancelError } from './core/CancelablePromise';
+export { OpenAPI } from './core/OpenAPI';
+export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { ApiResponse } from './models/ApiResponse';
 export type { Category } from './models/Category';
@@ -16,3 +20,7 @@ export { $Order } from './schemas/$Order';
 export { $Pet } from './schemas/$Pet';
 export { $Tag } from './schemas/$Tag';
 export { $User } from './schemas/$User';
+
+export { PetService } from './services/PetService';
+export { StoreService } from './services/StoreService';
+export { UserService } from './services/UserService';
