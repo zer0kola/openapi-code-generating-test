@@ -12,7 +12,7 @@ async function swaggerModelGenerate() {
       input: URL,
       output: outputPath,
       httpClient: HttpClient.AXIOS,
-      exportCore: true,
+      exportCore: false,
       exportServices: true,
       exportModels: true,
       useOptions: true,
@@ -29,21 +29,47 @@ async function swaggerModelGenerate() {
 }
 
 async function convertSchemaToZod(outputPath: string) {
-  // // `type` can be either a string or - outside of the CLI - a boolean. If its `true`, the name of the type will be the name of the schema with a capitalized first letter.
-  // const moduleWithType = jsonSchemaToZod(myObject, { name: "mySchema", module: "esm", type: true });
+  const schemasDir = path.resolve(__dirname, "./generated/schemas");
+  const outputDir = path.resolve(__dirname, "./generated/zodSchemas");
 
-  // const cjs = jsonSchemaToZod(myObject, { module: "cjs", name: "mySchema" });
-
-  // const justTheSchema = jsonSchemaToZod(myObject);
-
-  const schemasPath = path.join(outputPath, "schemas");
-  const zodOutputPath = path.join(outputPath, "zod-schemas");
-
-  if (!fs.existsSync(zodOutputPath)) {
-    fs.mkdirSync(zodOutputPath);
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
   }
 
+  const schemaFiles = fs.readdirSync(schemasDir);
+
+  schemaFiles.forEach((file) => {
+    const schemaPath = path.resolve(schemasDir, file);
+    const fileContent = fs.readFileSync(schemaPath, "utf-8");
+    const jsonString = extractJsonString(fileContent);
+
+    const schema = JSON.parse(jsonString);
+    console.log("🚀 ~ schemaFiles.forEach ~ schema:", schema);
+    const zodSchema = jsonSchemaToZod(schema, {
+      module: "esm",
+      type: true,
+      name: file.replace(".ts", ""),
+    });
+    const zodSchemaPath = path.resolve(outputDir, file.replace(".ts", ".zod.ts"));
+    fs.writeFileSync(zodSchemaPath, zodSchema);
+  });
+
   console.log("🚀 Zod 스키마 변환 완료");
+}
+
+function extractJsonString(fileContent: string): string {
+  const jsonStartIndex = fileContent.indexOf("=");
+
+  const jsonString = fileContent
+    .substring(jsonStartIndex + 1)
+    .replace(/(\w+)(?=\s*:)/g, '"$1"')
+    .replace(/'/g, '"')
+    .replace(/,(\s*})/g, "$1")
+    .replace("as const;", "")
+    .replace(/`/g, '"')
+    .trim();
+
+  return jsonString;
 }
 
 swaggerModelGenerate();
