@@ -1,22 +1,25 @@
-# OpenAPI Type Schema Test Automation
+# OpenAPI Generator, Schema Automation
 
 ## 프로젝트 설명
 
-OpenAPI 스펙을 사용하여 DTO zod 스키마, API 메서드, tanstack query, mutation hook을 자동으로 생성
+OAS를 사용하여 DTO zod 스키마, API 메서드, tanstack query, mutation hook을 자동으로 생성
 
 사용되는 라이브러리:
 
-- **openapi-types**: OpenAPI 스펙의 타입 정의로 변환하여 TypeScript에서 다룰 수 있게 합니다.
-- **openapi-jsonschema-parameters**: OpenAPI 파라미터를 JSON 스키마로 변환
-- **json-schema-to-zod**: JSON 스키마를 Zod 스키마로 변환하여 데이터 검증을 위한 타입을 자동으로 생성
-- **handlebars**: 코드 템플릿을 사용하여 API 메서드, query/mutation hook 파일을 생성
-- **clipanion**: CLI 유틸리티로 사용
+- **openapi-typescript-codegen**:
+  - OpenAPI 스펙을 기반으로 TypeScript 타입 정의 파일을 자동으로 생성해주는 도구입니다.
+    이 라이브러리는 OpenAPI 사양의 엔드포인트, 요청, 응답 등을 분석하여 해당 사양을 TypeScript 타입으로 변환합니다.
+- **json-schema-to-zod**:
+  - JSON 스키마를 Zod 스키마로 변환해주는 라이브러리입니다. Zod는 TypeScript로 작성된 스키마 선언 및 유효성 검사 라이브러리로, 개발자가 런타임 시점에 데이터를 안전하게 검증하고 변환할 수 있게 도와줍니다.
+- **handlebars**:
+  - 코드 템플릿을 정의하고, 이 템플릿을 기반으로 API 메서드 및 tanstack query/mutation hook 파일을 자동으로 생성할 수 있습니다.
 
 ### 기능 설명
 
 1. **OpenAPI 스펙 로드 및 파싱**:
 
-   - OpenAPI 스펙 JSON 파일을 가져와 openapi-types를 사용하여 이를 TypeScript 타입으로 변환합니다. 스펙을 직접 파싱하여 필요한 정보를 추출합니다.
+   - OpenAPI 스펙 URL을 입력해 `openapi-typescript-codegen`를 사용하여 이를 TypeScript 타입으로 변환합니다.
+     스펙을 직접 파싱하여 필요한 정보를 추출합니다.
 
 2. **Zod 스키마 생성**:
 
