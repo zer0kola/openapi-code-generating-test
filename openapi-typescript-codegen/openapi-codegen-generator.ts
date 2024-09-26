@@ -13,7 +13,7 @@ async function swaggerModelGenerate() {
       input: URL,
       output: outputPath,
       httpClient: HttpClient.AXIOS,
-      exportCore: false,
+      exportCore: true,
       exportServices: true,
       exportModels: true,
       useOptions: true,
@@ -53,9 +53,6 @@ async function convertSchemaToZod(outputPath: string) {
     const zodSchemaPath = path.resolve(outputDir, file.replace(".ts", ".zod.ts"));
     fs.writeFileSync(zodSchemaPath, zodSchema);
   });
-  // export const $User = z.object({ "id": z.number().int().optional(), "username": z.string().optional(), "firstName": z.string().optional(), "lastName": z.string().optional(), "email": z.string().optional(), "password": z.string().optional(), "phone": z.string().optional(), "userStatus": z.number().describe("User Status").optional() })
-  // 저장하는 파일의 내용은 위와 같이 저장됨
-  // 자동으로 lint가 적용되지 않아서 prettier로 포맷팅을 해주어야 함
   execSync(`prettier --write ${outputDir}/*.ts`);
 
   console.log("🚀 Zod 스키마 변환 완료");
