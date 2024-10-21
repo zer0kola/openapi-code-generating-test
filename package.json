@@ -10,7 +10,8 @@
     "lint": "next lint",
     "check-types": "tsc --noEmit",
     "generate-model": "pnpm dlx tsx openapi-typescript-codegen/openapi-codegen-generator.ts",
-    "swagger-typescript-api": "swagger-typescript-api -p https://petstore.swagger.io/v2/swagger.json -o ./swagger-typescript-api/api --axios --modular -t ./swagger-typescript-api/swagger-api-template"
+    "generate-types": "pnpm dlx tsx openapi-typescript/test-openapi-typescript.ts",
+    "generate": "pnpm run generate-types"
   },
   "dependencies": {
     "axios": "^1.7.7",
