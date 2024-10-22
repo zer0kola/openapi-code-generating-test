@@ -1,6 +1,8 @@
 import openapiTS, { astToString } from "openapi-typescript";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { jsonSchemaToZod } from "json-schema-to-zod";
+import { execSync } from "child_process";
 
 const URL = "https://petstore3.swagger.io/api/v3/openapi.json";
 const outputDir = path.resolve(__dirname, "generated");
@@ -28,6 +30,9 @@ async function generateSchema() {
 
     // 스키마 생성
     generateSchemas(schema.components.schemas);
+
+    // Zod 스키마 생성
+    await convertSchemaToZod();
 
     console.log("스키마가 성공적으로 생성되었습니다.");
   } catch (error) {
@@ -124,6 +129,71 @@ function getTypeFromSchema(schema: any): string {
 /** 문자열 첫 글자를 대문자로 변환 */
 function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+async function convertSchemaToZod() {
+  const schemasDir = path.join(outputDir, "schemas");
+  const zodOutputDir = path.join(outputDir, "zodSchemas");
+
+  if (!fs.existsSync(zodOutputDir)) {
+    fs.mkdirSync(zodOutputDir, { recursive: true });
+  }
+
+  const schemaFiles = fs.readdirSync(schemasDir);
+
+  schemaFiles.forEach((file) => {
+    const schemaPath = path.join(schemasDir, file);
+    const fileContent = fs.readFileSync(schemaPath, "utf-8");
+    const jsonString = extractJsonString(fileContent);
+
+    try {
+      const schema = JSON.parse(jsonString);
+      const zodSchema = jsonSchemaToZod(schema, {
+        module: "esm",
+        type: true,
+        name: file.replace(".ts", ""),
+      });
+      const zodSchemaPath = path.join(zodOutputDir, file.replace(".ts", ".zod.ts"));
+      fs.writeFileSync(zodSchemaPath, zodSchema);
+    } catch (error) {
+      console.error(`${file} 처리 중 오류 발생:`, error);
+    }
+  });
+
+  execSync(`prettier --write ${zodOutputDir}/*.ts`);
+
+  console.log("🚀 Zod 스키마 변환 완료");
+}
+
+function extractJsonString(fileContent: string): string {
+  const jsonStartIndex = fileContent.indexOf("=");
+  if (jsonStartIndex === -1) {
+    throw new Error("JSON 시작 부분을 찾을 수 없습니다.");
+  }
+
+  let jsonString = fileContent.substring(jsonStartIndex + 1).trim();
+
+  // 마지막 세미콜론과 'as const' 제거
+  jsonString = jsonString.replace(/\s*;\s*$/, "").replace(/\s+as\s+const\s*$/, "");
+
+  // 모든 프로퍼티 이름을 큰따옴표로 감싸기
+  jsonString = jsonString.replace(/(\w+):/g, '"$1":');
+
+  // 작은따옴표와 백틱을 큰따옴표로 변경
+  jsonString = jsonString.replace(/['`]/g, '"');
+
+  // 객체 타입 추가 (필요한 경우)
+  if (!jsonString.startsWith('{"type":"object",')) {
+    jsonString = '{"type":"object","properties":' + jsonString + "}";
+  }
+
+  // 마지막 쉼표 제거 (JSON에서 유효하지 않음)
+  jsonString = jsonString.replace(/,\s*}/g, "}");
+
+  // 줄바꿈 문자 제거
+  jsonString = jsonString.replace(/\n/g, "");
+
+  return jsonString;
 }
 
 generateSchema();
