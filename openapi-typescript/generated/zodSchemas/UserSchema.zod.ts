@@ -8,6 +8,6 @@ export const UserSchema = z.object({
   email: z.string().optional(),
   password: z.string().optional(),
   phone: z.string().optional(),
-  userStatus: z.number().int().optional(),
+  userStatus: z.number().int().describe("User Status").optional(),
 });
 export type UserSchema = z.infer<typeof UserSchema>;

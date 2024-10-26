@@ -34,7 +34,12 @@ async function generateSchema() {
     // Zod 스키마 생성
     await convertSchemaToZod();
 
-    console.log("스키마가 성공적으로 생성되었습니다.");
+    // schema 폴더 삭제
+    const schemaDir = path.join(outputDir, "schemas");
+    if (fs.existsSync(schemaDir)) {
+      fs.rmSync(schemaDir, { recursive: true, force: true });
+      console.log("🗑️ schema 폴더 삭제 완료");
+    }
   } catch (error) {
     console.error("스키마 생성 중 오류 발생:", error);
   }
@@ -77,12 +82,14 @@ function generateModels(schemas: Record<string, any>) {
     const content = `${imports}\nexport interface ${name} {\n${generateProperties(properties, schema)}\n}\n`;
     fs.writeFileSync(path.join(outputDir, "models", `${name}.ts`), content);
   });
+
+  console.log("🚀 모델 생성 완료");
 }
 
 /** 스키마 생성 */
 function generateSchemas(schemas: Record<string, any>) {
   Object.entries(schemas).forEach(([name, schema]) => {
-    const content = `export const ${name}Schema = {\n${generateSchemaProperties(schema.properties)}\n};\n`;
+    const content = `export const ${name}Schema = ${JSON.stringify(schema, null, 2)};\n`;
     fs.writeFileSync(path.join(outputDir, "schemas", `${name}Schema.ts`), content);
   });
 }
@@ -94,16 +101,6 @@ function generateProperties(properties: Record<string, any>, schema: any) {
       const description = prop.description ? `  /** ${prop.description} */\n` : "";
       return `${description}  ${name}: ${getTypeFromSchema(prop, schema)};`;
     })
-    .join("\n");
-}
-
-/** 스키마 프로퍼티 생성 */
-function generateSchemaProperties(properties: Record<string, any>) {
-  return Object.entries(properties)
-    .map(
-      ([name, prop]) =>
-        `  ${name}: { type: '${prop.type}' ${prop.format ? `, format: '${prop.format}'` : ""} },`
-    )
     .join("\n");
 }
 
@@ -147,24 +144,63 @@ async function convertSchemaToZod() {
 
   const schemaFiles = fs.readdirSync(schemasDir);
 
-  schemaFiles.forEach((file) => {
+  for (const file of schemaFiles) {
     const schemaPath = path.join(schemasDir, file);
     const fileContent = fs.readFileSync(schemaPath, "utf-8");
     const jsonString = extractJsonString(fileContent);
 
     try {
       const schema = JSON.parse(jsonString);
-      const zodSchema = jsonSchemaToZod(schema, {
+      const propertiesSchema = schema.properties || {};
+
+      const zodSchema = await jsonSchemaToZod(propertiesSchema, {
         module: "esm",
         type: true,
         name: file.replace(".ts", ""),
       });
+
+      // Enum 처리
+      let modifiedZodSchema = zodSchema.replace(
+        /z\.string\(\)(.+?enum\: \[.+?\])/g,
+        (match, p1) => `z.enum([${p1.match(/\[(.+?)\]/)[1]}])`
+      );
+
+      // 참조 타입 처리 및 import 문 생성
+      const imports = new Set<string>();
+      modifiedZodSchema = modifiedZodSchema.replace(
+        /z\.lazy\(\(\) => z\.unknown\(\)\)/g,
+        (match, refName) => {
+          const schemaName = refName.split("/").pop();
+          imports.add(schemaName);
+          return `z.lazy(() => ${schemaName}Schema)`;
+        }
+      );
+
+      // 배열 내 참조 타입 처리
+      modifiedZodSchema = modifiedZodSchema.replace(/z\.array\(z\.any\(\)\)/g, (match) => {
+        const propertyName = match.split(".")[0];
+        const propertySchema = propertiesSchema[propertyName];
+        if (propertySchema && propertySchema.items && propertySchema.items.$ref) {
+          const refName = propertySchema.items.$ref.split("/").pop();
+          imports.add(refName);
+          return `z.array(z.lazy(() => ${refName}Schema))`;
+        }
+        return match;
+      });
+
+      // import 문 생성
+      const importStatements = Array.from(imports)
+        .map((schemaName) => `import { ${schemaName}Schema } from './${schemaName}Schema.zod';`)
+        .join("\n");
+
+      const finalContent = `${importStatements}\n\n${modifiedZodSchema}`;
+
       const zodSchemaPath = path.join(zodOutputDir, file.replace(".ts", ".zod.ts"));
-      fs.writeFileSync(zodSchemaPath, zodSchema);
+      fs.writeFileSync(zodSchemaPath, finalContent);
     } catch (error) {
       console.error(`${file} 처리 중 오류 발생:`, error);
     }
-  });
+  }
 
   execSync(`prettier --write ${zodOutputDir}/*.ts`);
 
