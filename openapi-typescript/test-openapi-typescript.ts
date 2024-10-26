@@ -74,7 +74,7 @@ function generateModels(schemas: Record<string, any>) {
       }
     });
 
-    const content = `${imports}\nexport interface ${name} {\n${generateProperties(properties)}\n}\n`;
+    const content = `${imports}\nexport interface ${name} {\n${generateProperties(properties, schema)}\n}\n`;
     fs.writeFileSync(path.join(outputDir, "models", `${name}.ts`), content);
   });
 }
@@ -88,9 +88,12 @@ function generateSchemas(schemas: Record<string, any>) {
 }
 
 /** 모델 프로퍼티 생성 */
-function generateProperties(properties: Record<string, any>) {
+function generateProperties(properties: Record<string, any>, schema: any) {
   return Object.entries(properties)
-    .map(([name, prop]) => `  ${name}: ${getTypeFromSchema(prop)};`)
+    .map(([name, prop]) => {
+      const description = prop.description ? `  /** ${prop.description} */\n` : "";
+      return `${description}  ${name}: ${getTypeFromSchema(prop, schema)};`;
+    })
     .join("\n");
 }
 
@@ -105,7 +108,7 @@ function generateSchemaProperties(properties: Record<string, any>) {
 }
 
 /** 스키마에서 타입 가져오기 */
-function getTypeFromSchema(schema: any): string {
+function getTypeFromSchema(schema: any, parentSchema: any): string {
   if (schema.$ref) {
     return schema.$ref.split("/").pop() as string;
   }
@@ -114,13 +117,16 @@ function getTypeFromSchema(schema: any): string {
     case "number":
       return "number";
     case "string":
+      if (schema.enum) {
+        return schema.enum.map((value: string) => `'${value}'`).join(" | ");
+      }
       return "string";
     case "boolean":
       return "boolean";
     case "array":
       return schema.items.$ref
         ? `${schema.items.$ref.split("/").pop()}[]`
-        : `${getTypeFromSchema(schema.items)}[]`;
+        : `${getTypeFromSchema(schema.items, parentSchema)}[]`;
     default:
       return "any";
   }

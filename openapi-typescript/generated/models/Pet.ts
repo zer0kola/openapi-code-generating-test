@@ -7,5 +7,6 @@ export interface Pet {
   category: Category;
   photoUrls: string[];
   tags: Tag[];
-  status: string;
+  /** pet status in the store */
+  status: 'available' | 'pending' | 'sold';
 }

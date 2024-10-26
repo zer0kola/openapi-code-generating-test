@@ -4,6 +4,7 @@ export interface Order {
   petId: number;
   quantity: number;
   shipDate: string;
-  status: string;
+  /** Order Status */
+  status: 'placed' | 'approved' | 'delivered';
   complete: boolean;
 }
