@@ -169,8 +169,7 @@ async function convertSchemaToZod() {
       const imports = new Set<string>();
       modifiedZodSchema = modifiedZodSchema.replace(
         /z\.(lazy\(\(\) => z\.unknown\(\)\)|array\(z\.any\(\)\))/g,
-        (match, refName) => {
-          const propertyName = match.split(".")[0];
+        (match, _, propertyName) => {
           const propertySchema = propertiesSchema[propertyName];
 
           if (propertySchema) {
@@ -197,7 +196,7 @@ async function convertSchemaToZod() {
         .map((schemaName) => `import { ${schemaName}Schema } from './${schemaName}Schema.zod';`)
         .join("\n");
 
-      const finalContent = `import { z } from "zod";\n${importStatements}\n\n${modifiedZodSchema}`;
+      const finalContent = `${importStatements}\n\n${modifiedZodSchema}`;
 
       const zodSchemaPath = path.join(zodOutputDir, file.replace(".ts", ".zod.ts"));
       fs.writeFileSync(zodSchemaPath, finalContent);
