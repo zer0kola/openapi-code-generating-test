@@ -165,35 +165,39 @@ async function convertSchemaToZod() {
         (match, p1) => `z.enum([${p1.match(/\[(.+?)\]/)[1]}])`
       );
 
-      // 참조 타입 처리 및 import 문 생성
+      // 참조 타입 및 배열 처리
       const imports = new Set<string>();
       modifiedZodSchema = modifiedZodSchema.replace(
-        /z\.lazy\(\(\) => z\.unknown\(\)\)/g,
+        /z\.(lazy\(\(\) => z\.unknown\(\)\)|array\(z\.any\(\)\))/g,
         (match, refName) => {
-          const schemaName = refName.split("/").pop();
-          imports.add(schemaName);
-          return `z.lazy(() => ${schemaName}Schema)`;
+          const propertyName = match.split(".")[0];
+          const propertySchema = propertiesSchema[propertyName];
+
+          if (propertySchema) {
+            if (propertySchema.$ref) {
+              const schemaName = propertySchema.$ref.split("/").pop();
+              imports.add(schemaName);
+              return `z.lazy(() => ${schemaName}Schema)`;
+            } else if (
+              propertySchema.type === "array" &&
+              propertySchema.items &&
+              propertySchema.items.$ref
+            ) {
+              const schemaName = propertySchema.items.$ref.split("/").pop();
+              imports.add(schemaName);
+              return `z.array(z.lazy(() => ${schemaName}Schema))`;
+            }
+          }
+          return match;
         }
       );
-
-      // 배열 내 참조 타입 처리
-      modifiedZodSchema = modifiedZodSchema.replace(/z\.array\(z\.any\(\)\)/g, (match) => {
-        const propertyName = match.split(".")[0];
-        const propertySchema = propertiesSchema[propertyName];
-        if (propertySchema && propertySchema.items && propertySchema.items.$ref) {
-          const refName = propertySchema.items.$ref.split("/").pop();
-          imports.add(refName);
-          return `z.array(z.lazy(() => ${refName}Schema))`;
-        }
-        return match;
-      });
 
       // import 문 생성
       const importStatements = Array.from(imports)
         .map((schemaName) => `import { ${schemaName}Schema } from './${schemaName}Schema.zod';`)
         .join("\n");
 
-      const finalContent = `${importStatements}\n\n${modifiedZodSchema}`;
+      const finalContent = `import { z } from "zod";\n${importStatements}\n\n${modifiedZodSchema}`;
 
       const zodSchemaPath = path.join(zodOutputDir, file.replace(".ts", ".zod.ts"));
       fs.writeFileSync(zodSchemaPath, finalContent);
