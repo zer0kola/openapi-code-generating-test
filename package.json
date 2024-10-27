@@ -10,8 +10,7 @@
     "lint": "next lint",
     "check-types": "tsc --noEmit",
     "generate-model": "pnpm dlx tsx openapi-typescript-codegen/openapi-codegen-generator.ts",
-    "generate-types": "pnpm dlx tsx openapi-typescript/test-openapi-typescript.ts",
-    "generate": "pnpm run generate-types"
+    "codegen": "pnpm dlx tsx openapi-typescript/test-openapi-typescript.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.59.16",
