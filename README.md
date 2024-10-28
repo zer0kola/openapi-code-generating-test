@@ -1,8 +1,8 @@
-# OpenAPI Generator, Schema Automation
+# OpenAPI Generator; Zod Schema, types, hook, mutation Automation
 
 ## 프로젝트 설명
 
-`openapi-types`와 `swagger-parser`를 사용하여 OpenAPI 스펙 기반의 DTO Zod 스키마, API 메서드, tanstack query, mutation hook을 자동으로 생성하는 프로젝트입니다.
+`openapi-types`와 `swagger-parser` 등을 사용하여 OpenAPI 스펙 기반의 DTO Zod 스키마, API 메서드, tanstack query, mutation hook을 자동으로 생성하는 프로젝트입니다.
 
 사용되는 라이브러리:
 
