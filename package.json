@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "check-types": "tsc --noEmit",
-    "codegen": "pnpm dlx tsx codegen/codegen.ts"
+    "codegen": "pnpm dlx tsx openapi-types/codegen.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.59.16",
