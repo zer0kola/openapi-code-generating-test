@@ -1,13 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { OpenAPIV3 } from "openapi-types";
-import {
-  bundle, // 모듈 번들링
-  dereference, // 참조 해결
-  parse, // 파싱
-  resolve, // 해결
-  validate, // 검증
-} from "swagger-parser";
+import { parse } from "@apidevtools/swagger-parser";
 import { convertParametersToJSONSchema } from "openapi-jsonschema-parameters";
 import { jsonSchemaToZod } from "json-schema-to-zod";
 
@@ -20,3 +14,5 @@ const codeGenerate = async () => {
     console.error("🤮 코드 생성 중 오류 발생:", error);
   }
 };
+
+codeGenerate();
