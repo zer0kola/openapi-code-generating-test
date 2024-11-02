@@ -1,6 +1,28 @@
 import { OpenAPIV3 } from "openapi-types";
 import { convertParametersToJSONSchema } from "openapi-jsonschema-parameters";
 import { jsonSchemaToZod } from "json-schema-to-zod";
+import prettier from "prettier";
+
+/**
+ * 타입 정의 생성
+ * @param api OpenAPI 문서
+ * @returns 타입 정의
+ */
+export const parseAndGenerateFiles = async (api: OpenAPIV3.Document) => {
+  let typeDefinitions = "// 자동 생성된 타입 정의\n\n";
+
+  // OAS의 components.schemas 추출
+  const schemas = api.components?.schemas;
+  if (schemas) {
+    // 먼저 모든 타입 선언을 수집
+    Object.entries(schemas).forEach(([name, schema]) => {
+      typeDefinitions += generateTypeDefinition(name, schema as OpenAPIV3.SchemaObject);
+      typeDefinitions += "\n";
+    });
+  }
+
+  return typeDefinitions;
+};
 
 /**
  * 타입 정의 생성
@@ -145,4 +167,15 @@ export const generateZodSchemas = (api: OpenAPIV3.Document): string => {
 
   zodSchemas += "};\n";
   return zodSchemas;
+};
+
+/**
+ * 코드를 prettier로 포맷팅하는 함수
+ */
+export const formatCode = async (code: string): Promise<string> => {
+  const options = await prettier.resolveConfig(process.cwd());
+  return prettier.format(code, {
+    ...options,
+    parser: "typescript",
+  });
 };
