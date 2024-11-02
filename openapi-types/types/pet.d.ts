@@ -5,6 +5,7 @@ export interface Order {
   petId?: number;
   quantity?: number;
   shipDate?: string;
+  /** Order Status */
   status?: string;
   complete?: boolean;
 }
@@ -35,6 +36,7 @@ export interface User {
   email?: string;
   password?: string;
   phone?: string;
+  /** User Status */
   userStatus?: number;
 }
 
@@ -49,6 +51,7 @@ export interface Pet {
   category?: Category;
   photoUrls: string[];
   tags?: Tag[];
+  /** pet status in the store */
   status?: string;
 }
 
