@@ -123,9 +123,9 @@ export const swaggerCommand = async () => {
 
   try {
     await generateCode(url, 'types');
-    await generateCode(url, 'api');
-    await generateCode(url, 'query');
-    await generateCode(url, 'mutation');
+    // await generateCode(url, 'api');
+    // await generateCode(url, 'query');
+    // await generateCode(url, 'mutation');
     console.log('\n✅ 코드 생성 완료!');
   } catch (error: any) {
     console.error(`\n❌ 코드 생성 실패: ${error.message}`);

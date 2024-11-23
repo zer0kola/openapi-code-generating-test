@@ -14,25 +14,25 @@ export interface Order {
    * @format int64
    * @example 10
    */
-  id?: number;
+  id: number;
   /**
    * @format int64
    * @example 198772
    */
-  petId?: number;
+  petId: number;
   /**
    * @format int32
    * @example 7
    */
-  quantity?: number;
+  quantity: number;
   /** @format date-time */
-  shipDate?: string;
+  shipDate: string;
   /**
    * Order Status
    * @example "approved"
    */
-  status?: "placed" | "approved" | "delivered";
-  complete?: boolean;
+  status: "placed" | "approved" | "delivered";
+  complete: boolean;
 }
 
 export interface Customer {
@@ -40,21 +40,21 @@ export interface Customer {
    * @format int64
    * @example 100000
    */
-  id?: number;
+  id: number;
   /** @example "fehguy" */
-  username?: string;
-  address?: Address[];
+  username: string;
+  address: Address[];
 }
 
 export interface Address {
   /** @example "437 Lytton" */
-  street?: string;
+  street: string;
   /** @example "Palo Alto" */
-  city?: string;
+  city: string;
   /** @example "CA" */
-  state?: string;
+  state: string;
   /** @example "94301" */
-  zip?: string;
+  zip: string;
 }
 
 export interface Category {
@@ -62,9 +62,9 @@ export interface Category {
    * @format int64
    * @example 1
    */
-  id?: number;
+  id: number;
   /** @example "Dogs" */
-  name?: string;
+  name: string;
 }
 
 export interface User {
@@ -72,31 +72,31 @@ export interface User {
    * @format int64
    * @example 10
    */
-  id?: number;
+  id: number;
   /** @example "theUser" */
-  username?: string;
+  username: string;
   /** @example "John" */
-  firstName?: string;
+  firstName: string;
   /** @example "James" */
-  lastName?: string;
+  lastName: string;
   /** @example "john@email.com" */
-  email?: string;
+  email: string;
   /** @example "12345" */
-  password?: string;
+  password: string;
   /** @example "12345" */
-  phone?: string;
+  phone: string;
   /**
    * User Status
    * @format int32
    * @example 1
    */
-  userStatus?: number;
+  userStatus: number;
 }
 
 export interface Tag {
   /** @format int64 */
-  id?: number;
-  name?: string;
+  id: number;
+  name: string;
 }
 
 export interface Pet {
@@ -104,19 +104,19 @@ export interface Pet {
    * @format int64
    * @example 10
    */
-  id?: number;
+  id: number;
   /** @example "doggie" */
   name: string;
-  category?: Category;
+  category: Category;
   photoUrls: string[];
-  tags?: Tag[];
+  tags: Tag[];
   /** pet status in the store */
-  status?: "available" | "pending" | "sold";
+  status: "available" | "pending" | "sold";
 }
 
 export interface ApiResponse {
   /** @format int32 */
-  code?: number;
-  type?: string;
-  message?: string;
+  code: number;
+  type: string;
+  message: string;
 }
