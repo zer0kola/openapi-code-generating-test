@@ -2,8 +2,8 @@ import '@repo/ui/globals.css';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Kicks',
-  description: 'Compare kicks prices',
+  title: 'code generator',
+  description: 'code generator',
 };
 
 export default function RootLayout({

@@ -1,12 +1,13 @@
 {
-  "name": "kicks",
+  "name": "code-generator",
   "private": true,
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "ui": "pnpm --filter @repo/ui ui"
+    "ui": "pnpm --filter @repo/ui ui",
+    "api": "pnpm --filter @repo/api"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
