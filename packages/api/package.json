@@ -2,18 +2,15 @@
   "name": "@repo/api",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "codegen": "tsx ./generator/index.ts"
-  },
+  "scripts": {},
   "peerDependencies": {
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "next": "14.2.5"
   },
   "dependencies": {
-    "@repo/ui": "workspace:*",
     "@tanstack/react-query": "^5.59.16",
-    "axios": "^1.7.7",
-    "next": "14.2.5"
+    "axios": "^1.7.7"
   },
   "devDependencies": {
     "tsx": "^4.7.1",
@@ -30,8 +27,6 @@
     "json-schema-to-zod": "^2.4.1",
     "postcss": "^8.4.47",
     "prettier": "^3.3.3",
-    "swagger-typescript-api": "^13.0.22",
-    "turbo": "^2.2.1",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.12.2",
     "typescript-json-schema": "^0.65.1",
