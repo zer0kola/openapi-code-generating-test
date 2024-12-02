@@ -2,17 +2,29 @@
 const { field, utils } = it;
 const { formatDescription, require, _ } = utils;
 
+const { field, utils } = it;
+const { formatDescription, require, _ } = utils;
+
+// Helper function for safe JSON stringification
+const safeStringify = (obj) => {
+  try {
+    return JSON.stringify(obj);
+  } catch (e) {
+    return '[Complex Object]';
+  }
+};
+
 const comments = _.uniq(
     _.compact([
         field.title,
         field.description,
         field.deprecated && ` * @deprecated`,
-        !_.isUndefined(field.format) && `@format ${field.format}`,
-        !_.isUndefined(field.minimum) && `@min ${field.minimum}`,
-        !_.isUndefined(field.maximum) && `@max ${field.maximum}`,
-        !_.isUndefined(field.pattern) && `@pattern ${field.pattern}`,
+        _.has(field, 'format') && `@format ${field.format}`,
+        _.has(field, 'minimum') && `@min ${field.minimum}`,
+        _.has(field, 'maximum') && `@max ${field.maximum}`,
+        _.has(field, 'pattern') && `@pattern ${field.pattern}`,
         !_.isUndefined(field.example) &&
-        `@example ${_.isObject(field.example) ? JSON.stringify(field.example) : field.example}`,
+        `@example ${_.isObject(field.example) ? safeStringify(field.example) : field.example}`,
     ]).reduce((acc, comment) => [...acc, ...comment.split(/\n/g)], []),
 );
 %>
