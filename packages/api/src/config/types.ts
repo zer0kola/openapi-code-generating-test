@@ -9,13 +9,6 @@ export type APIResponseData<DATA = any> = {
   isAxiosError?: true; // Axios 에러 여부 (선택적)
 };
 
-// 객체의 모든 속성을 선택적으로 만드는 유틸리티 타입
-export type DeepPartial<T> = T extends object
-  ? {
-      [P in keyof T]?: DeepPartial<T[P]>; // 재귀적으로 모든 속성을 선택적으로 만듦
-    }
-  : T;
-
 // Axios 요청 설정 타입
 export type Config<D> = AxiosRequestConfig<D>;
 
