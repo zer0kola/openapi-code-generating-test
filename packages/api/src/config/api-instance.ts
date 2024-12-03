@@ -142,7 +142,10 @@ const createApiInstance = (config: CreateAxiosDefaults<any>) => {
  * 기본 API 인스턴스
  * @description 기본 API 엔드포인트에 대한 요청을 처리하는 인스턴스
  */
-export const apiInstance = createApiInstance({});
+export const apiInstance = createApiInstance({
+  // 테스트용 API 엔드포인트
+  baseURL: 'https://petstore3.swagger.io/api/v3',
+});
 
 /**
  * URL 파라미터 직렬화 설정
