@@ -58,16 +58,12 @@ const moveFiles = async (type: CodeType) => {
           file.endsWith('.ts'),
       );
 
-      let mergedContent = '';
       for (const file of apiFiles) {
         const content = fs.readFileSync(path.join(sourceDir, file), 'utf-8');
-        mergedContent += `\n${content}\n`;
-      }
-
-      if (mergedContent) {
+        const apiName = file.replace('.ts', '').toLowerCase();
         fs.writeFileSync(
-          path.join(targetDirectories[type], targetFilename),
-          mergedContent,
+          path.join(targetDirectories[type], `${apiName}.ts`),
+          content,
         );
       }
     }
