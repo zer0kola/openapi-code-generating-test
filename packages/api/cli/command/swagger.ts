@@ -34,20 +34,15 @@ const moveFiles = async (type: CodeType) => {
   const sourceDir = sourceDirectories[type];
   const targetDir = targetDirectories[type];
 
-  const targetFilename =
-    type === 'types'
-      ? `${type}.d.ts` // types는 .d.ts로 생성
-      : `${type}.ts`; // 나머지는 .ts로 유지
+  const targetFilename = type === 'types' ? `${type}.d.ts` : `${type}.ts`;
 
-  createDirectory(targetDir); // 디렉토리 생성
-  createDirectory(sourceDir); // 임시 디렉토리 생성
+  createDirectory(targetDir);
+  createDirectory(sourceDir);
 
   try {
-    // data-contracts.ts 파일 이동 (타입 정의)
     if (type === 'types') {
       const sourceFile = path.join(sourceDir, 'data-contracts.ts');
       if (fs.existsSync(sourceFile)) {
-        // 파일 내용 수정 후 이동
         const content = fs.readFileSync(sourceFile, 'utf-8');
         fs.writeFileSync(
           path.join(targetDirectories.types, targetFilename),
@@ -55,28 +50,32 @@ const moveFiles = async (type: CodeType) => {
         );
       }
     } else {
-      // 도메인별 파일 이동 (API, Query, Mutation)
       const files = fs.readdirSync(sourceDir);
-      const domainFile = files.find(
-        (file) => file.toLowerCase() === `${type}.ts`.toLowerCase(),
+      const apiFiles = files.filter(
+        (file) =>
+          file !== 'data-contracts.ts' &&
+          file !== 'http-client.ts' &&
+          file.endsWith('.ts'),
       );
 
-      if (domainFile) {
-        const sourceFile = path.join(sourceDir, domainFile);
-        const content = fs.readFileSync(sourceFile, 'utf-8');
+      let mergedContent = '';
+      for (const file of apiFiles) {
+        const content = fs.readFileSync(path.join(sourceDir, file), 'utf-8');
+        mergedContent += `\n${content}\n`;
+      }
+
+      if (mergedContent) {
         fs.writeFileSync(
           path.join(targetDirectories[type], targetFilename),
-          content,
+          mergedContent,
         );
       }
     }
 
-    // 임시 파일 정리
     if (fs.existsSync(path.join(sourceDir, 'http-client.ts'))) {
       fs.unlinkSync(path.join(sourceDir, 'http-client.ts'));
     }
 
-    // 임시 디렉토리 정리
     if (fs.existsSync(sourceDir)) {
       const files = fs.readdirSync(sourceDir);
       for (const file of files) {
