@@ -1,0 +1,25 @@
+<%
+const { utils, route, config, modelTypes } = it;
+const { _, pascalCase, require } = utils;
+const apiClassName = pascalCase(route.moduleName);
+const routes = route.routes;
+const dataContracts = _.map(modelTypes, "name");
+%>
+
+<% if (config.httpClientType === config.constants.HTTP_CLIENT.AXIOS) { %> import type { AxiosRequestConfig, AxiosResponse } from "axios"; <% } %>
+
+import { HttpClient, RequestParams, ContentType, HttpResponse } from "./<%~ config.fileNames.httpClient %>";
+<% if (dataContracts.length) { %>
+import type { <% ~dataContracts.join(", ") %> } from <%~`"../types/swagger-${apiClassName.toLowerCase()}.ts"` %>;
+<% } %>
+import { useQuery } from '@tanstack/vue-query';
+import { APIResponseData, <%~ apiClassName %>Api } from '@common/api';
+
+
+<% for (const route of routes) { %>
+<% if(route.request.method!=='get') continue; %>
+    <%~ includeFile('./procedure-call.ejs', { ...it, route }) %>
+<% } %>
+
+
+
