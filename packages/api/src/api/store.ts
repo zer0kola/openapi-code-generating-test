@@ -24,7 +24,15 @@ export const StoreApi = {
    */
 
   async getInventory<T = Record<string, number>>() {
-    return await apiInstance.get<T>("/store/inventory");
+    try {
+      const method = "get";
+      const endpoint = "/store/inventory";
+      const options = undefined;
+
+      return await apiInstance[method]<T>(endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
@@ -36,8 +44,16 @@ export const StoreApi = {
    * @request POST:/store/order
    */
 
-  async placeOrder() {
-    return await apiInstance.post("/store/order", payload);
+  async placeOrder(payload: Order) {
+    try {
+      const method = "post";
+      const endpoint = "/store/order";
+      const options = payload;
+
+      return await apiInstance[method](endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
@@ -50,7 +66,15 @@ export const StoreApi = {
    */
 
   async getOrderById<T = Order>() {
-    return await apiInstance.get<T>("/store/order/${orderId}");
+    try {
+      const method = "get";
+      const endpoint = "/store/order/${orderId}";
+      const options = undefined;
+
+      return await apiInstance[method]<T>(endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
@@ -63,6 +87,14 @@ export const StoreApi = {
    */
 
   async deleteOrder() {
-    return await apiInstance.delete("/store/order/${orderId}");
+    try {
+      const method = "delete";
+      const endpoint = "/store/order/${orderId}";
+      const options = undefined;
+
+      return await apiInstance[method](endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 };

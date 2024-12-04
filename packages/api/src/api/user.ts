@@ -22,8 +22,16 @@ export const UserApi = {
    * @request POST:/user/createWithList
    */
 
-  async createUsersWithListInput() {
-    return await apiInstance.post("/user/createWithList", payload);
+  async createUsersWithListInput(payload: User[]) {
+    try {
+      const method = "post";
+      const endpoint = "/user/createWithList";
+      const options = payload;
+
+      return await apiInstance[method](endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
@@ -36,7 +44,15 @@ export const UserApi = {
    */
 
   async getUserByName<T = User>() {
-    return await apiInstance.get<T>("/user/${username}");
+    try {
+      const method = "get";
+      const endpoint = "/user/${username}";
+      const options = undefined;
+
+      return await apiInstance[method]<T>(endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
@@ -48,8 +64,16 @@ export const UserApi = {
    * @request PUT:/user/{username}
    */
 
-  async updateUser() {
-    return await apiInstance.put("/user/${username}", payload);
+  async updateUser(payload: User) {
+    try {
+      const method = "put";
+      const endpoint = "/user/${username}";
+      const options = payload;
+
+      return await apiInstance[method](endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
@@ -62,7 +86,15 @@ export const UserApi = {
    */
 
   async deleteUser() {
-    return await apiInstance.delete("/user/${username}");
+    try {
+      const method = "delete";
+      const endpoint = "/user/${username}";
+      const options = undefined;
+
+      return await apiInstance[method](endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
@@ -75,7 +107,15 @@ export const UserApi = {
    */
 
   async loginUser<T = string>(username: string, password: string) {
-    return await apiInstance.get<T>("/user/login", { params: { username, password } });
+    try {
+      const method = "get";
+      const endpoint = "/user/login";
+      const options = { params: { username, password } };
+
+      return await apiInstance[method]<T>(endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
@@ -88,7 +128,15 @@ export const UserApi = {
    */
 
   async logoutUser<T = any>() {
-    return await apiInstance.get<T>("/user/logout");
+    try {
+      const method = "get";
+      const endpoint = "/user/logout";
+      const options = undefined;
+
+      return await apiInstance[method]<T>(endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
@@ -100,8 +148,16 @@ export const UserApi = {
    * @request POST:/user/createWithArray
    */
 
-  async createUsersWithArrayInput() {
-    return await apiInstance.post("/user/createWithArray", payload);
+  async createUsersWithArrayInput(payload: User[]) {
+    try {
+      const method = "post";
+      const endpoint = "/user/createWithArray";
+      const options = payload;
+
+      return await apiInstance[method](endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
@@ -113,7 +169,15 @@ export const UserApi = {
    * @request POST:/user
    */
 
-  async createUser() {
-    return await apiInstance.post("/user", payload);
+  async createUser(payload: User) {
+    try {
+      const method = "post";
+      const endpoint = "/user";
+      const options = payload;
+
+      return await apiInstance[method](endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 };

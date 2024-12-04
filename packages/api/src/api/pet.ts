@@ -23,8 +23,21 @@ export const PetApi = {
    * @secure
    */
 
-  async uploadFile(payload: { additionalMetadata?: string; file?: File }) {
-    return await apiInstance.post("/pet/${petId}/uploadImage", payload);
+  async uploadFile(payload: {
+    /** Additional data to pass to server */
+    additionalMetadata?: string;
+    /** file to upload */
+    file?: File;
+  }) {
+    try {
+      const method = "post";
+      const endpoint = "/pet/${petId}/uploadImage";
+      const options = payload;
+
+      return await apiInstance[method](endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
@@ -37,8 +50,16 @@ export const PetApi = {
    * @secure
    */
 
-  async addPet() {
-    return await apiInstance.post("/pet", payload);
+  async addPet(payload: Pet) {
+    try {
+      const method = "post";
+      const endpoint = "/pet";
+      const options = payload;
+
+      return await apiInstance[method](endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
@@ -51,8 +72,16 @@ export const PetApi = {
    * @secure
    */
 
-  async updatePet() {
-    return await apiInstance.put("/pet", payload);
+  async updatePet(payload: Pet) {
+    try {
+      const method = "put";
+      const endpoint = "/pet";
+      const options = payload;
+
+      return await apiInstance[method](endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
@@ -66,7 +95,15 @@ export const PetApi = {
    */
 
   async findPetsByStatus<T = Pet[]>(status: "available" | "pending" | "sold"[]) {
-    return await apiInstance.get<T>("/pet/findByStatus", { params: { status } });
+    try {
+      const method = "get";
+      const endpoint = "/pet/findByStatus";
+      const options = { params: { status } };
+
+      return await apiInstance[method]<T>(endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
@@ -81,7 +118,15 @@ export const PetApi = {
    */
 
   async findPetsByTags<T = Pet[]>(tags: string[]) {
-    return await apiInstance.get<T>("/pet/findByTags", { params: { tags } });
+    try {
+      const method = "get";
+      const endpoint = "/pet/findByTags";
+      const options = { params: { tags } };
+
+      return await apiInstance[method]<T>(endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
@@ -95,7 +140,15 @@ export const PetApi = {
    */
 
   async getPetById<T = Pet>() {
-    return await apiInstance.get<T>("/pet/${petId}");
+    try {
+      const method = "get";
+      const endpoint = "/pet/${petId}";
+      const options = undefined;
+
+      return await apiInstance[method]<T>(endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
@@ -108,8 +161,21 @@ export const PetApi = {
    * @secure
    */
 
-  async updatePetWithForm(payload: { name?: string; status?: string }) {
-    return await apiInstance.post("/pet/${petId}", payload);
+  async updatePetWithForm(payload: {
+    /** Updated name of the pet */
+    name?: string;
+    /** Updated status of the pet */
+    status?: string;
+  }) {
+    try {
+      const method = "post";
+      const endpoint = "/pet/${petId}";
+      const options = payload;
+
+      return await apiInstance[method](endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
@@ -123,6 +189,14 @@ export const PetApi = {
    */
 
   async deletePet() {
-    return await apiInstance.delete("/pet/${petId}");
+    try {
+      const method = "delete";
+      const endpoint = "/pet/${petId}";
+      const options = undefined;
+
+      return await apiInstance[method](endpoint, options);
+    } catch (error) {
+      throw error;
+    }
   },
 };
