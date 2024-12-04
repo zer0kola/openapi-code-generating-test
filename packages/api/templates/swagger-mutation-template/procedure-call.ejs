@@ -54,7 +54,7 @@ const formatApiParams = () => {
         const res=item.type.split('\n').filter((line) => !line.includes('{') && !line.includes('}') && !line.includes('*')).map((line) => line.trim())
         return res;
     })
-    
+
   const optional = filtered.filter(line => line.includes('?:'));
   const required = filtered.filter(line => !line.includes('?:'));
 
@@ -72,7 +72,7 @@ const formatApiParams = () => {
 
 apiParams=formatApiParams()
 
-if( ['put','post'].includes(route.raw.method)){apiParams=apiParams?`payload: DeepPartial\<${apiParams.includes(':')?'{':''} ${apiParams} ${apiParams.includes(':')?'}':''}\>  `:'' } 
+if( ['put','post'].includes(route.raw.method)){apiParams=apiParams?`payload: ${apiParams.includes(':')?'{':''} ${apiParams} ${apiParams.includes(':')?'}':''}  `:'' }
 
 
 

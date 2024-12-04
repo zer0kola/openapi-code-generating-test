@@ -69,7 +69,7 @@ const formatApiParams = () => {
 
 apiParams=formatApiParams()
 
-if( ['put','post'].includes(route.raw.method)){apiParams=apiParams?`payload: DeepPartial\<${apiParams.includes(':')?'{':''} ${apiParams} ${apiParams.includes(':')?'}':''}\>  `:'' }
+if( ['put','post'].includes(route.raw.method)){apiParams=apiParams?`payload: ${apiParams.includes(':')?'{':''} ${apiParams} ${apiParams.includes(':')?'}':''}  `:'' }
 
 const apiParamsKeys = Object.keys(requestParams?.properties??{}).map((item)=>`'${item}'`)
 const apiParamsValues = Object.keys(requestParams?.properties??{})
@@ -121,8 +121,6 @@ const describeReturnType = () => {
  */
 
 async <%~ route.routeName.usage %><%~apiReturnType?`<T = ${apiReturnType}>`:``%>(<%~ apiParams %>){
-  const response = await apiInstance.<%~ route.raw.method %><%~apiReturnType? `<T>`:``%>('<%~ path %>'<%~ !['put','post'].includes(String(route.raw.method))? (apiParams? ` , { params: getParams([${apiParamsKeys}],[${apiParamsValues}])}`:``):`, payload`%>);
-
-  return response;
+  return await apiInstance.<%~ route.raw.method %><%~apiReturnType? `<T>`:``%>('<%~ path %>'<%~ !['put','post'].includes(String(route.raw.method))? (apiParams? ` , { params: {${apiParamsValues}}}`:``):`, payload`%>);
 },
 
