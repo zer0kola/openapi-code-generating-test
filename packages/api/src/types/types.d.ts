@@ -9,88 +9,29 @@
  * ---------------------------------------------------------------
  */
 
-export interface Order {
-  /**
-   * @format int64
-   * @example 10
-   */
-  id: number;
-  /**
-   * @format int64
-   * @example 198772
-   */
-  petId: number;
-  /**
-   * @format int32
-   * @example 7
-   */
-  quantity: number;
-  /** @format date-time */
-  shipDate: string;
-  /**
-   * Order Status
-   * @example "approved"
-   */
-  status: "placed" | "approved" | "delivered";
-  complete: boolean;
-}
-
-export interface Customer {
-  /**
-   * @format int64
-   * @example 100000
-   */
-  id: number;
-  /** @example "fehguy" */
-  username: string;
-  address: Address[];
-}
-
-export interface Address {
-  /** @example "437 Lytton" */
-  street: string;
-  /** @example "Palo Alto" */
-  city: string;
-  /** @example "CA" */
-  state: string;
-  /** @example "94301" */
-  zip: string;
+export interface ApiResponse {
+  /** @format int32 */
+  code: number;
+  type: string;
+  message: string;
 }
 
 export interface Category {
-  /**
-   * @format int64
-   * @example 1
-   */
+  /** @format int64 */
   id: number;
-  /** @example "Dogs" */
   name: string;
 }
 
-export interface User {
-  /**
-   * @format int64
-   * @example 10
-   */
+export interface Pet {
+  /** @format int64 */
   id: number;
-  /** @example "theUser" */
-  username: string;
-  /** @example "John" */
-  firstName: string;
-  /** @example "James" */
-  lastName: string;
-  /** @example "john@email.com" */
-  email: string;
-  /** @example "12345" */
-  password: string;
-  /** @example "12345" */
-  phone: string;
-  /**
-   * User Status
-   * @format int32
-   * @example 1
-   */
-  userStatus: number;
+  category: Category;
+  /** @example "doggie" */
+  name: string;
+  photoUrls: string[];
+  tags: Tag[];
+  /** pet status in the store */
+  status: "available" | "pending" | "sold";
 }
 
 export interface Tag {
@@ -99,24 +40,32 @@ export interface Tag {
   name: string;
 }
 
-export interface Pet {
-  /**
-   * @format int64
-   * @example 10
-   */
+export interface Order {
+  /** @format int64 */
   id: number;
-  /** @example "doggie" */
-  name: string;
-  category: Category;
-  photoUrls: string[];
-  tags: Tag[];
-  /** pet status in the store */
-  status: "available" | "pending" | "sold";
+  /** @format int64 */
+  petId: number;
+  /** @format int32 */
+  quantity: number;
+  /** @format date-time */
+  shipDate: string;
+  /** Order Status */
+  status: "placed" | "approved" | "delivered";
+  complete: boolean;
 }
 
-export interface ApiResponse {
-  /** @format int32 */
-  code: number;
-  type: string;
-  message: string;
+export interface User {
+  /** @format int64 */
+  id: number;
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  phone: string;
+  /**
+   * User Status
+   * @format int32
+   */
+  userStatus: number;
 }

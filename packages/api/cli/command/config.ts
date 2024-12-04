@@ -17,4 +17,4 @@ export const targetDirectories = {
   types: './src/types',
 } as const;
 
-export const BASE_URL = 'https://petstore3.swagger.io/api/v3/openapi.json';
+export const BASE_URL = 'https://petstore.swagger.io/v2/swagger.json';
