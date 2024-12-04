@@ -9,8 +9,8 @@
  * ---------------------------------------------------------------
  */
 
-import { useMutation } from '@tanstack/react-query';
-import { PetApi } from '../';
+import { useMutation } from "@tanstack/react-query";
+import { PetApi } from "../";
 
 /**
  * No description
@@ -64,8 +64,6 @@ export const usePetMutationUpdatePet = (config?: Record<string, any>) => {
  * @secure
  */
 
-export const usePetMutationUpdatePetWithForm = (
-  config?: Record<string, any>,
-) => {
+export const usePetMutationUpdatePetWithForm = (config?: Record<string, any>) => {
   return useMutation({ ...config, mutationFn: PetApi.updatePetWithForm });
 };
