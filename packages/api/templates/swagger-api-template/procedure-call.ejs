@@ -1,17 +1,24 @@
 <%
+// 기본 설정과 유틸리티 함수들을 구조분해할당으로 가져옴
 const { utils, route, config } = it;
 const { requestBodyInfo, responseBodyInfo, specificArgNameResolver } = route;
 const { _, getInlineParseContent, getParseContent, parseSchema, getComponentByRef, require } = utils;
 const { parameters, path, method, payload, query, formData, security, requestParams } = route.request;
 const { type, errorType, contentTypes } = route.response;
 const { HTTP_CLIENT, RESERVED_REQ_PARAMS_ARG_NAMES } = config.constants;
+
+// 라우트 문서화를 위한 템플릿 포함
 const routeDocs = includeFile("./route-docs", { config, route, utils });
+
+// 쿼리 파라미터 관련 설정
 const queryName = (query && query.name) || "query";
 const pathParams = _.values(parameters);
 const pathParamsNames = _.map(pathParams, "name");
 
+// HTTP 클라이언트 타입 확인 (Fetch 여부)
 const isFetchTemplate = config.httpClientType === HTTP_CLIENT.FETCH;
 
+// 기본 요청 설정 파라미터 정의
 const requestConfigParam = {
     name: specificArgNameResolver.resolve(RESERVED_REQ_PARAMS_ARG_NAMES),
     optional: true,
@@ -19,10 +26,13 @@ const requestConfigParam = {
     defaultValue: "{}",
 }
 
+// 파라미터를 템플릿 문자열로 변환하는 헬퍼 함수
 const argToTmpl = ({ name, optional, type, defaultValue }) => `${name}${!defaultValue && optional ? '?' : ''}: ${type}${defaultValue ? ` = ${defaultValue}` : ''}`;
 
+// API 래퍼 함수의 인자 구성
 const rawWrapperArgs = config.extractRequestParams ?
     _.compact([
+        // requestParams가 있는 경우의 인자 구성
         requestParams && {
           name: pathParams.length ? `{ ${_.join(pathParamsNames, ", ")}, ...${queryName} }` : queryName,
           optional: false,
@@ -33,74 +43,86 @@ const rawWrapperArgs = config.extractRequestParams ?
         requestConfigParam,
     ]) :
     _.compact([
+        // requestParams가 없는 경우의 기본 인자 구성
         ...pathParams,
         query,
         payload,
         requestConfigParam,
     ])
 
+// 옵셔널 여부에 따라 인자 정렬 및 문자열로 변환
 const wrapperArgs = _
-    // Sort by optionality
     .sortBy(rawWrapperArgs, [o => o.optional])
     .map(argToTmpl)
     .join(', ')
 
+// API 반환 타입 설정 (GET 요청의 경우에만 설정)
 let apiParams;
 const apiReturnType=route.raw.method === 'get'?type:null;
 
+// API 파라미터 포맷팅 함수
 const formatApiParams = () => {
+    // data나 query 파라미터만 필터링
     const filtered = rawWrapperArgs.filter((item)=>item.name === 'data'|item.name==='query').flatMap((item) => {
         const res=item.type.split('\n').filter((line) => !line.includes('{') && !line.includes('}') && !line.includes('*')).map((line) => line.trim())
         return res;
     })
 
-  const optional = filtered.filter(line => line.includes('?:'));
-  const required = filtered.filter(line => !line.includes('?:'));
+    // 선택적 파라미터와 필수 파라미터 분리
+    const optional = filtered.filter(line => line.includes('?:'));
+    const required = filtered.filter(line => !line.includes('?:'));
 
-  const formattedOptional = optional.map((line)=>{
-    return line.replace(/[()]/g, '')
-  });
-  const formattedRequired = required.map((line)=>{
-    return line.replace(/[()]/g, '')
-  });
+    // 괄호 제거 및 포맷팅
+    const formattedOptional = optional.map((line)=>{
+        return line.replace(/[()]/g, '')
+    });
+    const formattedRequired = required.map((line)=>{
+        return line.replace(/[()]/g, '')
+    });
 
-  return [...formattedRequired , ...formattedOptional].filter((item)=>item!=='').join().replace(/,,/g, ',');
+    // 모든 파라미터 결합
+    return [...formattedRequired , ...formattedOptional].filter((item)=>item!=='').join().replace(/,,/g, ',');
 }
 
 apiParams=formatApiParams()
 
+// PUT, POST 메서드의 경우 payload 파라미터 설정
 if( ['put','post'].includes(route.raw.method)){
   apiParams = route.request.payload ?
     `payload: ${route.request.payload.type}` :
     '';
 }
 
+// API 파라미터 키와 값 추출
 const apiParamsKeys = Object.keys(requestParams?.properties??{}).map((item)=>`'${item}'`)
 const apiParamsValues = Object.keys(requestParams?.properties??{})
 
+// 경로를 기반으로 한 고유 키 생성
 const mockKey=path.split('/').filter((item)=>item!=='').join('_').replace(/-/g, '_')
 
-
-// RequestParams["type"]
+// 요청 컨텐츠 타입 매핑
 const requestContentKind = {
     "JSON": "ContentType.Json",
     "URL_ENCODED": "ContentType.UrlEncoded",
     "FORM_DATA": "ContentType.FormData",
     "TEXT": "ContentType.Text",
 }
-// RequestParams["format"]
+
+// 응답 컨텐츠 타입 매핑
 const responseContentKind = {
     "JSON": '"json"',
     "IMAGE": '"blob"',
     "FORM_DATA": isFetchTemplate ? '"formData"' : '"document"'
 }
 
+// 요청 관련 템플릿 변수들
 const bodyTmpl = _.get(payload, "name") || null;
 const queryTmpl = (query != null && queryName) || null;
 const bodyContentKindTmpl = requestContentKind[requestBodyInfo.contentKind] || null;
 const responseFormatTmpl = responseContentKind[responseBodyInfo.success && responseBodyInfo.success.schema && responseBodyInfo.success.schema.contentKind] || null;
 const securityTmpl = security ? 'true' : null;
 
+// 반환 타입 설명 함수
 const describeReturnType = () => {
     if (!config.toJS) return "";
 
@@ -118,7 +140,7 @@ const describeReturnType = () => {
 /**
 <%~ routeDocs.description %>
 
- *<% /* Here you can add some other JSDoc tags */ %>
+ *<% %>
 
 <%~ routeDocs.lines %>
 
