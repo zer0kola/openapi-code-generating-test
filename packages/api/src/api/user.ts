@@ -50,7 +50,7 @@ export const UserApi = {
    * @summary Updated user
    * @request PUT:/user/{username} */
 
-  async updateUser(payload: User) {
+  async updateUser(payload: { username: string; user: User }) {
     const method = "put";
     const endpoint = `/user/${payload.username}`;
     const options = payload;

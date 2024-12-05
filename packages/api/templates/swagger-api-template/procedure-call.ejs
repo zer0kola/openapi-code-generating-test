@@ -1,218 +1,121 @@
 <%
-// 기본 설정과 유틸리티 함수들을 구조분해할당으로 가져옴
+// 기본 설정 및 유틸리티
 const { utils, route, config } = it;
-const { requestBodyInfo, responseBodyInfo, specificArgNameResolver } = route;
-const { _, getInlineParseContent, getParseContent, parseSchema, getComponentByRef, require } = utils;
-const { parameters, path, method, payload, query, formData, security, requestParams } = route.request;
-const { type, errorType, contentTypes } = route.response;
+const { _, getInlineParseContent } = utils;
+const { parameters, path, method, payload, query, security, requestParams } = route.request;
+const { type, errorType } = route.response;
 const { HTTP_CLIENT, RESERVED_REQ_PARAMS_ARG_NAMES } = config.constants;
 
-// 라우트 문서화를 위한 템플릿 포함
-const routeDocs = includeFile("./route-docs", { config, route, utils });
-
-// 쿼리 파라미터 관련 설정
-const queryName = (query && query.name) || "query";
-const pathParams = _.values(parameters);
-const pathParamsNames = _.map(pathParams, "name");
-
-// HTTP 클라이언트 타입 확인 (Fetch 여부)
-const isFetchTemplate = config.httpClientType === HTTP_CLIENT.FETCH;
-
-// 기본 요청 설정 파라미터 정의
-const requestConfigParam = {
-    name: specificArgNameResolver.resolve(RESERVED_REQ_PARAMS_ARG_NAMES),
-    optional: true,
-    type: "RequestParams",
-    defaultValue: "{}",
-}
-
-// 파라미터를 템플릿 문자열로 변환하는 헬퍼 함수
-const argToTmpl = ({ name, optional, type, defaultValue }) => `${name}${!defaultValue && optional ? '?' : ''}: ${type}${defaultValue ? ` = ${defaultValue}` : ''}`;
-
-// API 래퍼 함수의 인자 구성
-const rawWrapperArgs = config.extractRequestParams ?
-    _.compact([
-        // requestParams가 있는 경우의 인자 구성
-        requestParams && {
-          name: pathParams.length ? `{ ${_.join(pathParamsNames, ", ")}, ...${queryName} }` : queryName,
-          optional: false,
-          type: getInlineParseContent(requestParams),
-        },
-        ...(!requestParams ? pathParams : []),
-        payload,
-        requestConfigParam,
-    ]) :
-    _.compact([
-        // requestParams가 없는 경우의 기본 인자 구성
-        ...pathParams,
-        query,
-        payload,
-        requestConfigParam,
-    ])
-
-// 옵셔널 여부에 따라 인자 정렬 및 문자열로 변환
-const wrapperArgs = _
-    .sortBy(rawWrapperArgs, [o => o.optional])
-    .map(argToTmpl)
-    .join(', ')
-
-// API 반환 타입 설정 (GET 요청의 경우에만 설정)
-let apiParams;
-const apiReturnType=route.raw.method === 'get'?type:null;
-
-// API 파라미터 포맷팅 함수
-const formatApiParams = () => {
-    // data query 파라미터만 필터링
-    const filtered = rawWrapperArgs.filter((item)=>item.name === 'data'|item.name==='query').flatMap((item) => {
-        const res=item.type.split('\n').filter((line) => !line.includes('{') && !line.includes('}') && !line.includes('*')).map((line) => line.trim())
-        return res;
-    })
-
-    // 선택적 파라미터와 필수 파라미터 분리
-    const optional = filtered.filter(line => line.includes('?:'));
-    const required = filtered.filter(line => !line.includes('?:'));
-
-    // 괄호 제거 및 포맷팅
-    const formattedOptional = optional.map((line)=>{
-        return line.replace(/[()]/g, '')
-    });
-    const formattedRequired = required.map((line)=>{
-        return line.replace(/[()]/g, '')
-    });
-
-    // 모든 파라미터 결합
-    return [...formattedRequired , ...formattedOptional].filter((item)=>item!=='').join().replace(/,,/g, ',');
-}
-
-apiParams=formatApiParams()
-
-// PUT, POST 메서드의 경우 payload 파라미터 설정
-if( ['put','post'].includes(route.raw.method)){
-  apiParams = route.request.payload ?
-    `payload: ${route.request.payload.type}` :
-    '';
-}
-
-// API 파라미터 키와 값 추출
-const apiParamsKeys = Object.keys(requestParams?.properties??{}).map((item)=>`'${item}'`)
-const apiParamsValues = Object.keys(requestParams?.properties??{})
-
-//  ��� 컨텐츠 타입 매핑
-const requestContentKind = {
-    "JSON": "ContentType.Json",
-    "URL_ENCODED": "ContentType.UrlEncoded",
-    "FORM_DATA": "ContentType.FormData",
-    "TEXT": "ContentType.Text",
-}
-
-// 응답 컨텐츠 타입 매핑
-const responseContentKind = {
-    "JSON": '"json"',
-    "IMAGE": '"blob"',
-    "FORM_DATA": isFetchTemplate ? '"formData"' : '"document"'
-}
-
-// 요청 관련 템플릿 변수들
-const bodyTmpl = _.get(payload, "name") || null;
-const queryTmpl = (query != null && queryName) || null;
-const bodyContentKindTmpl = requestContentKind[requestBodyInfo.contentKind] || null;
-const responseFormatTmpl = responseContentKind[responseBodyInfo.success && responseBodyInfo.success.schema && responseBodyInfo.success.schema.contentKind] || null;
-const securityTmpl = security ? 'true' : null;
-
-// 반환 타입 설명 함수
-const describeReturnType = () => {
-    if (!config.toJS) return "";
-
-    switch(config.httpClientType) {
-        case HTTP_CLIENT.AXIOS: {
-          return `Promise<AxiosResponse<${type}>>`
-        }
-        default: {
-          return `Promise<HttpResponse<${type}, ${errorType}>`
-        }
+// 상수 정의
+const CONTENT_TYPE_MAPPING = {
+    request: {
+        JSON: "ContentType.Json",
+        URL_ENCODED: "ContentType.UrlEncoded",
+        FORM_DATA: "ContentType.FormData",
+        TEXT: "ContentType.Text",
+    },
+    response: {
+        JSON: '"json"',
+        IMAGE: '"blob"',
+        FORM_DATA: config.httpClientType === HTTP_CLIENT.FETCH ? '"formData"' : '"document"'
     }
-}
+};
 
-// path 파라미터와 form 데이터 파라미터, 쿼리 파라미터 분리
+// 파라미터 분류
 const pathParameters = parameters.filter(param => param.in === 'path');
 const formDataParameters = parameters.filter(param => param.in === 'formData');
 const queryParameters = parameters.filter(param => param.in === 'query');
 
-// API 파라미터 생성 로직 수정
+// 유틸리티 함수
+const formatParameter = (param) => {
+    const paramType = param.type === 'array' ? `${param.items.type}[]` : param.type;
+    return `${param.name}${param.required ? '' : '?'}: ${paramType}`;
+};
+
 const generateApiParams = () => {
+    const properties = [];
 
-    let payloadProperties = [];
-
-    // path 파라미터 처리
+    // Path 파라미터 처리
     if (path.includes('{')) {
         const pathParams = path.match(/{([^}]+)}/g) || [];
         pathParams.forEach(param => {
             const paramName = param.replace(/[{}]/g, '');
             const parameter = parameters.find(p => p.name === paramName);
             if (parameter) {
-                payloadProperties.push(`${paramName}: ${parameter.type === 'integer' ? 'number' : parameter.type}`);
+                properties.push(`${paramName}: ${parameter.type === 'integer' ? 'number' : parameter.type}`);
             }
         });
     }
 
-    // 기존 payload 처리
+    // Payload 처리
     if (payload) {
-        let payloadContent = payload.type;
+        const payloadContent = payload.type;
 
-        // 중괄호가 없는 단순 타입인 경우 그대로 사용
-        if (!payloadContent.startsWith('{')) {
-            payloadProperties = [payloadContent]; // 타입을 직접 사용
+        // 참조 타입인 경우 (예: User)
+        if (payloadContent.includes('components.schemas.')) {
+            const typeName = payloadContent.split('.').pop();
+            properties.push(properties.length > 0 ? `user: ${typeName}` : typeName);
         }
-        // 중괄호가 있는 객체 타입인 경우
+        // 일반 객체 타입인 경우
         else if (payloadContent.startsWith('{') && payloadContent.endsWith('}')) {
-            payloadContent = payloadContent
-                .replace(/^{\s*/, '') // 시작 중괄호와 공백 제거
-                .replace(/\s*}$/, '') // 끝 중괄호와 공백 제거
-                .trim(); // 추가 공백 제거
+            const cleanContent = payloadContent
+                .replace(/^{\s*|\s*}$/g, '')
+                .trim();
 
-            // 속성들을 배열로 분리
-            const props = payloadContent.split(';').map(prop => prop.trim()).filter(Boolean);
-            payloadProperties.push(...props);
+            const props = cleanContent
+                .split(';')
+                .map(prop => prop.trim())
+                .filter(Boolean)
+                .map(prop => {
+                    if (prop.includes('components.schemas.')) {
+                        const [name, type] = prop.split(':').map(p => p.trim());
+                        const typeName = type.split('.').pop();
+                        return `${name.toLowerCase()}: ${typeName}`;
+                    }
+                    return prop;
+                });
+
+            properties.push(...props);
         }
-        // 배열 타입 처리
+        // 배열 타입인 경우
         else if (payloadContent.includes('[]')) {
-            payloadContent = payloadContent.replace(/\((.*?)\)\[\]/g, '$1[]');
-            payloadProperties = [payloadContent];
+            const arrayType = payloadContent.replace(/\((.*?)\)\[\]/g, '$1[]');
+            if (arrayType.includes('components.schemas.')) {
+                const typeName = arrayType.split('.').pop();
+                properties.push(`users: ${typeName}[]`);
+            } else {
+                properties.push(arrayType);
+            }
+        }
+        // 단순 타입인 경우 (예: 'User')
+        else {
+            const isSchemaType = /^[A-Z]/.test(payloadContent);
+            if (isSchemaType) {
+                properties.push(properties.length > 0 ? `user: ${payloadContent}` : payloadContent);
+            } else {
+                properties.push(payloadContent);
+            }
         }
     }
 
-    // query 파라미터 처리
-    if (queryParameters.length) {
-        queryParameters.forEach(param => {
-            const paramType = param.type === 'array'
-                ? `${param.items.type}[]`
-                : param.type;
-            payloadProperties.push(`${param.name}${param.required ? '' : '?'}: ${paramType}`);
-        });
-    }
+    // Query 파라미터 처리
+    queryParameters.forEach(param => {
+        properties.push(formatParameter(param));
+    });
 
-    // formData 파라미터 처리
-    if (formDataParameters.length) {
-        formDataParameters.forEach(param => {
-            payloadProperties.push(`${param.name}${param.required ? '' : '?'}: ${param.type === 'file' ? 'File' : param.type}`);
-        });
-    }
+    // FormData 파라미터 처리
+    formDataParameters.forEach(param => {
+        properties.push(`${param.name}${param.required ? '' : '?'}: ${param.type === 'file' ? 'File' : param.type}`);
+    });
 
-    // 수집된 모든 프로퍼티가 있는 경우에만 payload 객체 생성
-    if (payloadProperties.length > 0) {
-        // 단일 타입이고 중괄호가 없는 경우 직접 타입으로 사용
-        if (payloadProperties.length === 1 && !payloadProperties[0].includes(':')) {
-            return `payload: ${payloadProperties[0]}`;
-        }
-        // 여러 프로퍼티가 있는 경우 객체로 생성
-        return `payload: {\n    ${payloadProperties.join(';\n    ')}\n  }`;
-    }
 
-    // 파라미터가 전혀 없는 경우
-    return '';
+    if (properties.length === 0) return '';
+    if (properties.length === 1 && !properties[0].includes(':')) {
+        return `payload: ${properties[0]}`;
+    }
+    return `payload: {\n    ${properties.join(';\n    ')}\n  }`;
 };
 
-// 요청 본문 생성 로직 수정
 const generateRequestBody = () => {
     if (formDataParameters.length) {
         return `
@@ -227,7 +130,6 @@ const generateRequestBody = () => {
     return payload ? 'payload' : 'undefined';
 };
 
-// 요청 옵션 생성 로직 수정
 const generateRequestOptions = () => {
     if (formDataParameters.length) {
         return generateRequestBody();
@@ -238,14 +140,21 @@ const generateRequestOptions = () => {
         return `{ params: { ${queryParams} } }`;
     }
 
-    if (['put', 'post'].includes(route.raw.method)) {
-        return 'payload';
-    }
-
-    return 'undefined';
+    return ['put', 'post'].includes(route.raw.method) ? 'payload' : 'undefined';
 };
 
-apiParams = generateApiParams();
+const processPath = (originalPath) => {
+    return originalPath
+        .replace(/\$\{(\w+)\}/g, (_, paramName) => `\${payload.${paramName}}`)
+        .replace(/{(\w+)}/g, (_, paramName) => `\${payload.${paramName}}`);
+};
+
+// 라우트 문서화
+const routeDocs = includeFile("./route-docs", { config, route, utils });
+
+// API 반환 타입
+const apiReturnType = route.raw.method === 'get' ? type : null;
+const apiParams = generateApiParams();
 %>
 /**
 <%~ routeDocs.description %>
@@ -253,21 +162,9 @@ apiParams = generateApiParams();
 <%~ routeDocs.lines %>
  */
 
-async <%~ route.routeName.usage %><%~apiReturnType?`<T = ${apiReturnType}>`:``%>(<%~ generateApiParams() %>) {
+async <%~ route.routeName.usage %><%~apiReturnType?`<T = ${apiReturnType}>`:``%>(<%~ apiParams %>) {
     const method = '<%~ route.raw.method %>';
-    <%
-
-    // 원본 path에서 직접 payload.param 형태로 변환
-    const processedPath = path
-        .replace(/\$\{(\w+)\}/g, (match, paramName) => {
-            return `\${payload.${paramName}}`;
-        })
-        .replace(/{(\w+)}/g, (match, paramName) => {
-            return `\${payload.${paramName}}`;
-        });
-
-    %>
-    const endpoint = `<%~ processedPath %>`;
+    const endpoint = `<%~ processPath(path) %>`;
     const options = <%~ generateRequestOptions() %>;
 
     return await apiInstance[method]<%~apiReturnType? `<T>`:``%>(endpoint, options);
