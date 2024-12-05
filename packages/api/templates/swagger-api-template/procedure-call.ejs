@@ -125,7 +125,6 @@ const describeReturnType = () => {
  */
 
 async <%~ route.routeName.usage %><%~apiReturnType?`<T = ${apiReturnType}>`:``%>(<%~ apiParams %>) {
-  try {
     const method = '<%~ route.raw.method %>';
     const endpoint = '<%~ path %>';
     const options = <%~ !['put','post'].includes(String(route.raw.method))
@@ -134,8 +133,5 @@ async <%~ route.routeName.usage %><%~apiReturnType?`<T = ${apiReturnType}>`:``%>
     %>;
 
     return await apiInstance[method]<%~apiReturnType? `<T>`:``%>(endpoint, options);
-  } catch (error) {
-    throw error;
-  }
 },
 

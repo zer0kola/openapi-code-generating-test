@@ -29,15 +29,11 @@ export const PetApi = {
     /** file to upload */
     file?: File;
   }) {
-    try {
-      const method = "post";
-      const endpoint = "/pet/${petId}/uploadImage";
-      const options = payload;
+    const method = "post";
+    const endpoint = "/pet/${petId}/uploadImage";
+    const options = payload;
 
-      return await apiInstance[method](endpoint, options);
-    } catch (error) {
-      throw error;
-    }
+    return await apiInstance[method](endpoint, options);
   },
 
   /**
@@ -51,15 +47,11 @@ export const PetApi = {
    */
 
   async addPet(payload: Pet) {
-    try {
-      const method = "post";
-      const endpoint = "/pet";
-      const options = payload;
+    const method = "post";
+    const endpoint = "/pet";
+    const options = payload;
 
-      return await apiInstance[method](endpoint, options);
-    } catch (error) {
-      throw error;
-    }
+    return await apiInstance[method](endpoint, options);
   },
 
   /**
@@ -73,15 +65,11 @@ export const PetApi = {
    */
 
   async updatePet(payload: Pet) {
-    try {
-      const method = "put";
-      const endpoint = "/pet";
-      const options = payload;
+    const method = "put";
+    const endpoint = "/pet";
+    const options = payload;
 
-      return await apiInstance[method](endpoint, options);
-    } catch (error) {
-      throw error;
-    }
+    return await apiInstance[method](endpoint, options);
   },
 
   /**
@@ -95,15 +83,11 @@ export const PetApi = {
    */
 
   async findPetsByStatus<T = Pet[]>(status: "available" | "pending" | "sold"[]) {
-    try {
-      const method = "get";
-      const endpoint = "/pet/findByStatus";
-      const options = { params: { status } };
+    const method = "get";
+    const endpoint = "/pet/findByStatus";
+    const options = { params: { status } };
 
-      return await apiInstance[method]<T>(endpoint, options);
-    } catch (error) {
-      throw error;
-    }
+    return await apiInstance[method]<T>(endpoint, options);
   },
 
   /**
@@ -118,15 +102,11 @@ export const PetApi = {
    */
 
   async findPetsByTags<T = Pet[]>(tags: string[]) {
-    try {
-      const method = "get";
-      const endpoint = "/pet/findByTags";
-      const options = { params: { tags } };
+    const method = "get";
+    const endpoint = "/pet/findByTags";
+    const options = { params: { tags } };
 
-      return await apiInstance[method]<T>(endpoint, options);
-    } catch (error) {
-      throw error;
-    }
+    return await apiInstance[method]<T>(endpoint, options);
   },
 
   /**
@@ -140,15 +120,11 @@ export const PetApi = {
    */
 
   async getPetById<T = Pet>() {
-    try {
-      const method = "get";
-      const endpoint = "/pet/${petId}";
-      const options = undefined;
+    const method = "get";
+    const endpoint = "/pet/${petId}";
+    const options = undefined;
 
-      return await apiInstance[method]<T>(endpoint, options);
-    } catch (error) {
-      throw error;
-    }
+    return await apiInstance[method]<T>(endpoint, options);
   },
 
   /**
@@ -167,15 +143,11 @@ export const PetApi = {
     /** Updated status of the pet */
     status?: string;
   }) {
-    try {
-      const method = "post";
-      const endpoint = "/pet/${petId}";
-      const options = payload;
+    const method = "post";
+    const endpoint = "/pet/${petId}";
+    const options = payload;
 
-      return await apiInstance[method](endpoint, options);
-    } catch (error) {
-      throw error;
-    }
+    return await apiInstance[method](endpoint, options);
   },
 
   /**
@@ -189,14 +161,10 @@ export const PetApi = {
    */
 
   async deletePet() {
-    try {
-      const method = "delete";
-      const endpoint = "/pet/${petId}";
-      const options = undefined;
+    const method = "delete";
+    const endpoint = "/pet/${petId}";
+    const options = undefined;
 
-      return await apiInstance[method](endpoint, options);
-    } catch (error) {
-      throw error;
-    }
+    return await apiInstance[method](endpoint, options);
   },
 };
