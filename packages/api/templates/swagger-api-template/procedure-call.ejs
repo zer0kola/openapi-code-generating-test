@@ -62,7 +62,7 @@ const apiReturnType=route.raw.method === 'get'?type:null;
 
 // API 파라미터 포맷팅 함수
 const formatApiParams = () => {
-    // data나 query 파라미터만 필터링
+    // data query 파라미터만 필터링
     const filtered = rawWrapperArgs.filter((item)=>item.name === 'data'|item.name==='query').flatMap((item) => {
         const res=item.type.split('\n').filter((line) => !line.includes('{') && !line.includes('}') && !line.includes('*')).map((line) => line.trim())
         return res;
@@ -97,7 +97,7 @@ if( ['put','post'].includes(route.raw.method)){
 const apiParamsKeys = Object.keys(requestParams?.properties??{}).map((item)=>`'${item}'`)
 const apiParamsValues = Object.keys(requestParams?.properties??{})
 
-// 경로를 기반으로 한 고유 키 생성
+// ��로를 기반으로 한 고유 키 생성
 const mockKey=path.split('/').filter((item)=>item!=='').join('_').replace(/-/g, '_')
 
 // 요청 컨텐츠 타입 매핑
@@ -136,23 +136,96 @@ const describeReturnType = () => {
     }
 }
 
+// path 파라미터와 form 데이터 파라미터, 쿼리 파라미터 분리
+const pathParameters = parameters.filter(param => param.in === 'path');
+const formDataParameters = parameters.filter(param => param.in === 'formData');
+const queryParameters = parameters.filter(param => param.in === 'query');
+
+// API 파라미터 생성 로직 수정
+const generateApiParams = () => {
+    const params = [];
+
+    // path 파라미터가 있는 경우 먼저 추가
+    if (path.includes('{')) {
+        const pathParams = path.match(/{([^}]+)}/g) || [];
+        pathParams.forEach(param => {
+            const paramName = param.replace(/[{}]/g, '');
+            const parameter = parameters.find(p => p.name === paramName);
+            if (parameter) {
+                params.push(`${paramName}: ${parameter.type === 'integer' ? 'number' : parameter.type}`);
+            }
+        });
+    }
+
+    // query 파라미터 추가
+    if (queryParameters.length) {
+        queryParameters.forEach(param => {
+            const paramType = param.type === 'array'
+                ? `${param.items.type}[]`
+                : param.type;
+            params.push(`${param.name}${param.required ? '' : '?'}: ${paramType}`);
+        });
+    }
+
+    // formData 파라미터 추가
+    if (formDataParameters.length) {
+        formDataParameters.forEach(param => {
+            params.push(`${param.name}${param.required ? '' : '?'}: ${param.type === 'file' ? 'File' : param.type}`);
+        });
+    }
+    // 일반 payload가 있고 formData가 아닌 경우
+    else if (payload && !formDataParameters.length) {
+        params.push(`payload: ${payload.type}`);
+    }
+
+    return params.join(', ');
+};
+
+// 요청 본문 생성 로직 수정
+const generateRequestBody = () => {
+    if (formDataParameters.length) {
+        return `
+    const formData = new FormData();
+    ${formDataParameters.map(param => `
+    if (${param.name}) {
+        formData.append('${param.name}', ${param.name});
+    }`).join('')}
+    return formData;
+`;
+    }
+    return payload ? 'payload' : 'undefined';
+};
+
+// 요청 옵션 생성 로직 수정
+const generateRequestOptions = () => {
+    if (formDataParameters.length) {
+        return generateRequestBody();
+    }
+
+    if (queryParameters.length) {
+        const queryParams = queryParameters.map(param => param.name).join(', ');
+        return `{ params: { ${queryParams} } }`;
+    }
+
+    if (['put', 'post'].includes(route.raw.method)) {
+        return 'payload';
+    }
+
+    return 'undefined';
+};
+
+apiParams = generateApiParams();
 %>
 /**
 <%~ routeDocs.description %>
 
- *<% %>
-
 <%~ routeDocs.lines %>
-
  */
 
 async <%~ route.routeName.usage %><%~apiReturnType?`<T = ${apiReturnType}>`:``%>(<%~ apiParams %>) {
     const method = '<%~ route.raw.method %>';
-    const endpoint = '<%~ path %>';
-    const options = <%~ !['put','post'].includes(String(route.raw.method))
-      ? (apiParams ? `{ params: {${apiParamsValues}} }` : 'undefined')
-      : 'payload'
-    %>;
+    const endpoint = `<%~ path.replace(/{/g, '${') %>`;
+    const options = <%~ generateRequestOptions() %>;
 
     return await apiInstance[method]<%~apiReturnType? `<T>`:``%>(endpoint, options);
 },
