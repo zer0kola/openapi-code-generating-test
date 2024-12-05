@@ -7,17 +7,25 @@ const { type, errorType } = route.response;
 const { HTTP_CLIENT, RESERVED_REQ_PARAMS_ARG_NAMES } = config.constants;
 
 // 상수 정의
+const ContentType = {
+    JSON: "ContentType.Json",
+    URL_ENCODED: "ContentType.UrlEncoded",
+    FORM_DATA: "ContentType.FormData",
+    TEXT: "ContentType.Text"
+};
+
+const ResponseFormat = {
+    JSON: "json",
+    IMAGE: "blob",
+    FORM_DATA: "formData"
+};
+
 const CONTENT_TYPE_MAPPING = {
-    request: {
-        JSON: "ContentType.Json",
-        URL_ENCODED: "ContentType.UrlEncoded",
-        FORM_DATA: "ContentType.FormData",
-        TEXT: "ContentType.Text",
-    },
+    request: ContentType,
     response: {
-        JSON: '"json"',
-        IMAGE: '"blob"',
-        FORM_DATA: config.httpClientType === HTTP_CLIENT.FETCH ? '"formData"' : '"document"'
+        JSON: ResponseFormat.JSON,
+        IMAGE: ResponseFormat.IMAGE,
+        FORM_DATA: config.httpClientType === HTTP_CLIENT.FETCH ? ResponseFormat.FORM_DATA : "document"
     }
 };
 
@@ -58,11 +66,9 @@ const generateApiParams = () => {
         }
         // 일반 객체 타입인 경우
         else if (payloadContent.startsWith('{') && payloadContent.endsWith('}')) {
-            const cleanContent = payloadContent
+            const props = payloadContent
                 .replace(/^{\s*|\s*}$/g, '')
-                .trim();
-
-            const props = cleanContent
+                .trim()
                 .split(';')
                 .map(prop => prop.trim())
                 .filter(Boolean)
@@ -98,16 +104,10 @@ const generateApiParams = () => {
         }
     }
 
-    // Query 파라미터 처리
-    queryParameters.forEach(param => {
+    // Query 및 FormData 파라미터 처리
+    [...queryParameters, ...formDataParameters].forEach(param => {
         properties.push(formatParameter(param));
     });
-
-    // FormData 파라미터 처리
-    formDataParameters.forEach(param => {
-        properties.push(`${param.name}${param.required ? '' : '?'}: ${param.type === 'file' ? 'File' : param.type}`);
-    });
-
 
     if (properties.length === 0) return '';
     if (properties.length === 1 && !properties[0].includes(':')) {
@@ -117,36 +117,24 @@ const generateApiParams = () => {
 };
 
 const generateRequestBody = () => {
-    if (formDataParameters.length) {
-        return `
+    if (!formDataParameters.length) return payload ? 'payload' : 'undefined';
+
+    return `
     const formData = new FormData();
-    ${formDataParameters.map(param => `
-    if (${param.name}) {
-        formData.append('${param.name}', ${param.name});
-    }`).join('')}
-    return formData;
-`;
-    }
-    return payload ? 'payload' : 'undefined';
+    ${formDataParameters
+        .map(param => `if (payload.${param.name}) formData.append('${param.name}', payload.${param.name});`)
+        .join('\n    ')}
+    return formData;`;
 };
 
 const generateRequestOptions = () => {
-    if (formDataParameters.length) {
-        return generateRequestBody();
-    }
-
-    if (queryParameters.length) {
-        const queryParams = queryParameters.map(param => param.name).join(', ');
-        return `{ params: { ${queryParams} } }`;
-    }
-
+    if (formDataParameters.length) return generateRequestBody();
+    if (queryParameters.length) return `{ params: { ${queryParameters.map(p => p.name).join(', ')} } }`;
     return ['put', 'post'].includes(route.raw.method) ? 'payload' : 'undefined';
 };
 
 const processPath = (originalPath) => {
-    return originalPath
-        .replace(/\$\{(\w+)\}/g, (_, paramName) => `\${payload.${paramName}}`)
-        .replace(/{(\w+)}/g, (_, paramName) => `\${payload.${paramName}}`);
+    return originalPath.replace(/(?:\$\{(\w+)\}|{(\w+)})/g, (_, p1, p2) => `\${payload.${p1 || p2}}`);
 };
 
 // 라우트 문서화
