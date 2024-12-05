@@ -53,7 +53,7 @@ export const StoreApi = {
 
   async getOrderById<T = Order>(payload: { orderId: number }) {
     const method = "get";
-    const endpoint = `/store/order/${orderId}`;
+    const endpoint = `/store/order/${payload.orderId}`;
     const options = undefined;
 
     return await apiInstance[method]<T>(endpoint, options);
@@ -68,7 +68,7 @@ export const StoreApi = {
 
   async deleteOrder(payload: { orderId: number }) {
     const method = "delete";
-    const endpoint = `/store/order/${orderId}`;
+    const endpoint = `/store/order/${payload.orderId}`;
     const options = undefined;
 
     return await apiInstance[method](endpoint, options);

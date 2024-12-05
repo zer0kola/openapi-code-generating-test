@@ -97,7 +97,7 @@ if( ['put','post'].includes(route.raw.method)){
 const apiParamsKeys = Object.keys(requestParams?.properties??{}).map((item)=>`'${item}'`)
 const apiParamsValues = Object.keys(requestParams?.properties??{})
 
-//  텐츠 타입 매핑
+//  ��� 컨텐츠 타입 매핑
 const requestContentKind = {
     "JSON": "ContentType.Json",
     "URL_ENCODED": "ContentType.UrlEncoded",
@@ -256,13 +256,16 @@ apiParams = generateApiParams();
 async <%~ route.routeName.usage %><%~apiReturnType?`<T = ${apiReturnType}>`:``%>(<%~ generateApiParams() %>) {
     const method = '<%~ route.raw.method %>';
     <%
-    let debugPath = path;
-    debugPath = debugPath.replace(/{/g, '${');
-    %>
-    <%
-    // path가 이미 ${...} 형태라면 그대로 사용하고,
-    // {param} 형태라면 ${param}으로 변환
-    const processedPath = path.includes('${') ? path : path.replace(/{/g, '${').replace(/}/g, '}');
+
+    // 원본 path에서 직접 payload.param 형태로 변환
+    const processedPath = path
+        .replace(/\$\{(\w+)\}/g, (match, paramName) => {
+            return `\${payload.${paramName}}`;
+        })
+        .replace(/{(\w+)}/g, (match, paramName) => {
+            return `\${payload.${paramName}}`;
+        });
+
     %>
     const endpoint = `<%~ processedPath %>`;
     const options = <%~ generateRequestOptions() %>;

@@ -29,7 +29,7 @@ export const PetApi = {
     file?: File;
   }) {
     const method = "post";
-    const endpoint = `/pet/${petId}/uploadImage`;
+    const endpoint = `/pet/${payload.petId}/uploadImage`;
     const options = payload;
 
     return await apiInstance[method](endpoint, options);
@@ -110,7 +110,7 @@ export const PetApi = {
 
   async getPetById<T = Pet>(payload: { petId: number }) {
     const method = "get";
-    const endpoint = `/pet/${petId}`;
+    const endpoint = `/pet/${payload.petId}`;
     const options = undefined;
 
     return await apiInstance[method]<T>(endpoint, options);
@@ -132,7 +132,7 @@ export const PetApi = {
     status?: string;
   }) {
     const method = "post";
-    const endpoint = `/pet/${petId}`;
+    const endpoint = `/pet/${payload.petId}`;
     const options = payload;
 
     return await apiInstance[method](endpoint, options);
@@ -148,7 +148,7 @@ export const PetApi = {
 
   async deletePet(payload: { petId: number }) {
     const method = "delete";
-    const endpoint = `/pet/${petId}`;
+    const endpoint = `/pet/${payload.petId}`;
     const options = undefined;
 
     return await apiInstance[method](endpoint, options);
