@@ -51,7 +51,7 @@ export const StoreApi = {
    * @summary Find purchase order by ID
    * @request GET:/store/order/{orderId} */
 
-  async getOrderById<T = Order>(orderId: number) {
+  async getOrderById<T = Order>(payload: { orderId: number }) {
     const method = "get";
     const endpoint = `/store/order/${orderId}`;
     const options = undefined;
@@ -66,7 +66,7 @@ export const StoreApi = {
    * @summary Delete purchase order by ID
    * @request DELETE:/store/order/{orderId} */
 
-  async deleteOrder(orderId: number) {
+  async deleteOrder(payload: { orderId: number }) {
     const method = "delete";
     const endpoint = `/store/order/${orderId}`;
     const options = undefined;

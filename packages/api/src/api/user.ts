@@ -35,7 +35,7 @@ export const UserApi = {
    * @summary Get user by user name
    * @request GET:/user/{username} */
 
-  async getUserByName<T = User>(username: string) {
+  async getUserByName<T = User>(payload: { username: string }) {
     const method = "get";
     const endpoint = `/user/${username}`;
     const options = undefined;
@@ -50,7 +50,7 @@ export const UserApi = {
    * @summary Updated user
    * @request PUT:/user/{username} */
 
-  async updateUser(username: string, payload: User) {
+  async updateUser(payload: User) {
     const method = "put";
     const endpoint = `/user/${username}`;
     const options = payload;
@@ -65,7 +65,7 @@ export const UserApi = {
    * @summary Delete user
    * @request DELETE:/user/{username} */
 
-  async deleteUser(username: string) {
+  async deleteUser(payload: { username: string }) {
     const method = "delete";
     const endpoint = `/user/${username}`;
     const options = undefined;
