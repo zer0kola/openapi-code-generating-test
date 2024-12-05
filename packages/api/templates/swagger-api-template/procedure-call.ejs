@@ -97,7 +97,7 @@ if( ['put','post'].includes(route.raw.method)){
 const apiParamsKeys = Object.keys(requestParams?.properties??{}).map((item)=>`'${item}'`)
 const apiParamsValues = Object.keys(requestParams?.properties??{})
 
-// 요청 컨텐츠 타입 매핑
+//  텐츠 타입 매핑
 const requestContentKind = {
     "JSON": "ContentType.Json",
     "URL_ENCODED": "ContentType.UrlEncoded",
@@ -140,42 +140,76 @@ const queryParameters = parameters.filter(param => param.in === 'query');
 
 // API 파라미터 생성 로직 수정
 const generateApiParams = () => {
-    const params = [];
 
-    // path 파라미터가 있는 경우 먼저 추가
+    let payloadProperties = [];
+
+    // path 파라미터 처리
     if (path.includes('{')) {
         const pathParams = path.match(/{([^}]+)}/g) || [];
         pathParams.forEach(param => {
             const paramName = param.replace(/[{}]/g, '');
             const parameter = parameters.find(p => p.name === paramName);
             if (parameter) {
-                params.push(`${paramName}: ${parameter.type === 'integer' ? 'number' : parameter.type}`);
+                payloadProperties.push(`${paramName}: ${parameter.type === 'integer' ? 'number' : parameter.type}`);
             }
         });
     }
 
-    // query 파라미터 추가
+    // 기존 payload 처리
+    if (payload) {
+        let payloadContent = payload.type;
+
+        // 중괄호가 없는 단순 타입인 경우 그대로 사용
+        if (!payloadContent.startsWith('{')) {
+            payloadProperties = [payloadContent]; // 타입을 직접 사용
+        }
+        // 중괄호가 있는 객체 타입인 경우
+        else if (payloadContent.startsWith('{') && payloadContent.endsWith('}')) {
+            payloadContent = payloadContent
+                .replace(/^{\s*/, '') // 시작 중괄호와 공백 제거
+                .replace(/\s*}$/, '') // 끝 중괄호와 공백 제거
+                .trim(); // 추가 공백 제거
+
+            // 속성들을 배열로 분리
+            const props = payloadContent.split(';').map(prop => prop.trim()).filter(Boolean);
+            payloadProperties.push(...props);
+        }
+        // 배열 타입 처리
+        else if (payloadContent.includes('[]')) {
+            payloadContent = payloadContent.replace(/\((.*?)\)\[\]/g, '$1[]');
+            payloadProperties = [payloadContent];
+        }
+    }
+
+    // query 파라미터 처리
     if (queryParameters.length) {
         queryParameters.forEach(param => {
             const paramType = param.type === 'array'
                 ? `${param.items.type}[]`
                 : param.type;
-            params.push(`${param.name}${param.required ? '' : '?'}: ${paramType}`);
+            payloadProperties.push(`${param.name}${param.required ? '' : '?'}: ${paramType}`);
         });
     }
 
-    // formData 파라미터 추가
+    // formData 파라미터 처리
     if (formDataParameters.length) {
         formDataParameters.forEach(param => {
-            params.push(`${param.name}${param.required ? '' : '?'}: ${param.type === 'file' ? 'File' : param.type}`);
+            payloadProperties.push(`${param.name}${param.required ? '' : '?'}: ${param.type === 'file' ? 'File' : param.type}`);
         });
     }
-    // 일반 payload가 있고 formData가 아닌 경우
-    else if (payload && !formDataParameters.length) {
-        params.push(`payload: ${payload.type}`);
+
+    // 수집된 모든 프로퍼티가 있는 경우에만 payload 객체 생성
+    if (payloadProperties.length > 0) {
+        // 단일 타입이고 중괄호가 없는 경우 직접 타입으로 사용
+        if (payloadProperties.length === 1 && !payloadProperties[0].includes(':')) {
+            return `payload: ${payloadProperties[0]}`;
+        }
+        // 여러 프로퍼티가 있는 경우 객체로 생성
+        return `payload: {\n    ${payloadProperties.join(';\n    ')}\n  }`;
     }
 
-    return params.join(', ');
+    // 파라미터가 전혀 없는 경우
+    return '';
 };
 
 // 요청 본문 생성 로직 수정
@@ -219,16 +253,11 @@ apiParams = generateApiParams();
 <%~ routeDocs.lines %>
  */
 
-async <%~ route.routeName.usage %><%~apiReturnType?`<T = ${apiReturnType}>`:``%>(<%~ apiParams %>) {
+async <%~ route.routeName.usage %><%~apiReturnType?`<T = ${apiReturnType}>`:``%>(<%~ generateApiParams() %>) {
     const method = '<%~ route.raw.method %>';
     <%
-    console.log('\n=== Path Replacement Debug ===');
-    console.log('Original path:', path);
     let debugPath = path;
-    console.log('Step 1 - First replace:', debugPath.replace(/{/g, '${'));
     debugPath = debugPath.replace(/{/g, '${');
-    console.log('Step 2 - Second replace:', debugPath.replace(/}/g, '}'));
-    console.log('=========================\n');
     %>
     <%
     // path가 이미 ${...} 형태라면 그대로 사용하고,

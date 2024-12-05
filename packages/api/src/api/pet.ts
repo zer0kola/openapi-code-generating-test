@@ -21,15 +21,13 @@ export const PetApi = {
    * @request POST:/pet/{petId}/uploadImage
    * @secure */
 
-  async uploadFile(
-    petId: number,
-    payload: {
-      /** Additional data to pass to server */
-      additionalMetadata?: string;
-      /** file to upload */
-      file?: File;
-    },
-  ) {
+  async uploadFile(payload: {
+    petId: number;
+    /** Additional data to pass to server */
+    additionalMetadata?: string;
+    /** file to upload */
+    file?: File;
+  }) {
     const method = "post";
     const endpoint = `/pet/${petId}/uploadImage`;
     const options = payload;
@@ -110,7 +108,7 @@ export const PetApi = {
    * @request GET:/pet/{petId}
    * @secure */
 
-  async getPetById<T = Pet>(petId: number) {
+  async getPetById<T = Pet>(payload: { petId: number }) {
     const method = "get";
     const endpoint = `/pet/${petId}`;
     const options = undefined;
@@ -126,15 +124,13 @@ export const PetApi = {
    * @request POST:/pet/{petId}
    * @secure */
 
-  async updatePetWithForm(
-    petId: number,
-    payload: {
-      /** Updated name of the pet */
-      name?: string;
-      /** Updated status of the pet */
-      status?: string;
-    },
-  ) {
+  async updatePetWithForm(payload: {
+    petId: number;
+    /** Updated name of the pet */
+    name?: string;
+    /** Updated status of the pet */
+    status?: string;
+  }) {
     const method = "post";
     const endpoint = `/pet/${petId}`;
     const options = payload;
@@ -150,7 +146,7 @@ export const PetApi = {
    * @request DELETE:/pet/{petId}
    * @secure */
 
-  async deletePet(petId: number) {
+  async deletePet(payload: { petId: number }) {
     const method = "delete";
     const endpoint = `/pet/${petId}`;
     const options = undefined;
