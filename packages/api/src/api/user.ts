@@ -37,7 +37,7 @@ export const UserApi = {
 
   async getUserByName<T = User>(username: string) {
     const method = "get";
-    const endpoint = `/user/$${username}`;
+    const endpoint = `/user/${username}`;
     const options = undefined;
 
     return await apiInstance[method]<T>(endpoint, options);
@@ -52,7 +52,7 @@ export const UserApi = {
 
   async updateUser(username: string, payload: User) {
     const method = "put";
-    const endpoint = `/user/$${username}`;
+    const endpoint = `/user/${username}`;
     const options = payload;
 
     return await apiInstance[method](endpoint, options);
@@ -67,7 +67,7 @@ export const UserApi = {
 
   async deleteUser(username: string) {
     const method = "delete";
-    const endpoint = `/user/$${username}`;
+    const endpoint = `/user/${username}`;
     const options = undefined;
 
     return await apiInstance[method](endpoint, options);

@@ -97,9 +97,6 @@ if( ['put','post'].includes(route.raw.method)){
 const apiParamsKeys = Object.keys(requestParams?.properties??{}).map((item)=>`'${item}'`)
 const apiParamsValues = Object.keys(requestParams?.properties??{})
 
-// ��로를 기반으로 한 고유 키 생성
-const mockKey=path.split('/').filter((item)=>item!=='').join('_').replace(/-/g, '_')
-
 // 요청 컨텐츠 타입 매핑
 const requestContentKind = {
     "JSON": "ContentType.Json",
@@ -224,7 +221,21 @@ apiParams = generateApiParams();
 
 async <%~ route.routeName.usage %><%~apiReturnType?`<T = ${apiReturnType}>`:``%>(<%~ apiParams %>) {
     const method = '<%~ route.raw.method %>';
-    const endpoint = `<%~ path.replace(/{/g, '${') %>`;
+    <%
+    console.log('\n=== Path Replacement Debug ===');
+    console.log('Original path:', path);
+    let debugPath = path;
+    console.log('Step 1 - First replace:', debugPath.replace(/{/g, '${'));
+    debugPath = debugPath.replace(/{/g, '${');
+    console.log('Step 2 - Second replace:', debugPath.replace(/}/g, '}'));
+    console.log('=========================\n');
+    %>
+    <%
+    // path가 이미 ${...} 형태라면 그대로 사용하고,
+    // {param} 형태라면 ${param}으로 변환
+    const processedPath = path.includes('${') ? path : path.replace(/{/g, '${').replace(/}/g, '}');
+    %>
+    const endpoint = `<%~ processedPath %>`;
     const options = <%~ generateRequestOptions() %>;
 
     return await apiInstance[method]<%~apiReturnType? `<T>`:``%>(endpoint, options);
