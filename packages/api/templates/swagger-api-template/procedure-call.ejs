@@ -40,6 +40,12 @@ const formatParameter = (param) => {
     return `${param.name}${param.required ? '' : '?'}: ${paramType}`;
 };
 
+// 변수명 생성을 위한 유틸리티 함수 추가
+const generateVariableName = (typeName) => {
+    // 타입 이름을 camelCase로 변환 (예: UserProfile -> userProfile)
+    return typeName.charAt(0).toLowerCase() + typeName.slice(1);
+};
+
 const generateApiParams = () => {
     const properties = [];
 
@@ -59,10 +65,11 @@ const generateApiParams = () => {
     if (payload) {
         const payloadContent = payload.type;
 
-        // 참조 타입인 경우 (예: User)
+        // 참조 타입인 경우
         if (payloadContent.includes('components.schemas.')) {
             const typeName = payloadContent.split('.').pop();
-            properties.push(properties.length > 0 ? `user: ${typeName}` : typeName);
+            const variableName = generateVariableName(typeName);
+            properties.push(properties.length > 0 ? `${variableName}: ${typeName}` : typeName);
         }
         // 일반 객체 타입인 경우
         else if (payloadContent.startsWith('{') && payloadContent.endsWith('}')) {
@@ -76,7 +83,9 @@ const generateApiParams = () => {
                     if (prop.includes('components.schemas.')) {
                         const [name, type] = prop.split(':').map(p => p.trim());
                         const typeName = type.split('.').pop();
-                        return `${name.toLowerCase()}: ${typeName}`;
+                        // 변수명을 동적으로 생성
+                        const variableName = generateVariableName(name);
+                        return `${variableName}: ${typeName}`;
                     }
                     return prop;
                 });
@@ -88,16 +97,19 @@ const generateApiParams = () => {
             const arrayType = payloadContent.replace(/\((.*?)\)\[\]/g, '$1[]');
             if (arrayType.includes('components.schemas.')) {
                 const typeName = arrayType.split('.').pop();
-                properties.push(`users: ${typeName}[]`);
+                const variableName = generateVariableName(typeName);
+                const pluralVariableName = `${variableName}s`;
+                properties.push(`${pluralVariableName}: ${typeName}[]`);
             } else {
                 properties.push(arrayType);
             }
         }
-        // 단순 타입인 경우 (예: 'User')
+        // 단순 타입인 경우
         else {
             const isSchemaType = /^[A-Z]/.test(payloadContent);
             if (isSchemaType) {
-                properties.push(properties.length > 0 ? `user: ${payloadContent}` : payloadContent);
+                const variableName = generateVariableName(payloadContent);
+                properties.push(properties.length > 0 ? `${variableName}: ${payloadContent}` : payloadContent);
             } else {
                 properties.push(payloadContent);
             }
