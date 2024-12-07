@@ -4,7 +4,8 @@
     "baseUrl": ".",
     "paths": {
       "@repo/api/*": ["./src/*"]
-    }
+    },
+    "types": ["node"]
   },
   "include": ["src"],
   "exclude": ["node_modules"]
