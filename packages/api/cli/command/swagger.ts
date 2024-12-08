@@ -1,9 +1,27 @@
-import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
+import { execSync } from 'child_process';
+import SwaggerParser from '@apidevtools/swagger-parser';
 
 import type { CodeType } from './config';
 import { BASE_URL, sourceDirectories, targetDirectories } from './config';
+
+/**
+ * oas 문서를 json으로 파싱
+ * @param url - Swagger 문서 URL
+ */
+const parseOAS = async (url: string) => {
+  const sourceDir = './src/test-types';
+  const doc = await SwaggerParser.parse(url);
+  if (!fs.existsSync(sourceDir)) {
+    fs.mkdirSync(sourceDir, { recursive: true });
+  }
+  fs.writeFileSync(
+    path.join(sourceDir, 'oas.json'),
+    JSON.stringify(doc, null, 2),
+  );
+  console.log('✅ oas.json 파일 생성 완료!');
+};
 
 /**
  * Swagger TypeScript API 명령어 실행
@@ -104,6 +122,7 @@ const generateCode = async (url: string, type: CodeType) => {
  */
 export const swaggerCommand = async () => {
   try {
+    await parseOAS(BASE_URL);
     await generateCode(BASE_URL, 'types');
     await generateCode(BASE_URL, 'api');
     await generateCode(BASE_URL, 'query');
