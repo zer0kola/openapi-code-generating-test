@@ -9,8 +9,8 @@
  * ---------------------------------------------------------------
  */
 
+import type { Pet } from "../";
 import { apiInstance } from "../config/api-instance";
-import type { Pet } from "../types";
 
 export const PetApi = {
   /**

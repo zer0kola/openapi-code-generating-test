@@ -9,8 +9,8 @@
  * ---------------------------------------------------------------
  */
 
+import type { Order } from "../";
 import { apiInstance } from "../config/api-instance";
-import type { Order } from "../types";
 
 export const StoreApi = {
   /**

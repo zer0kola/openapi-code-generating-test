@@ -10,8 +10,8 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
+import type { Order } from "../";
 import { APIResponseData, StoreApi } from "../";
-import type { Order } from "../types";
 
 /**
  * @description Returns a map of status codes to quantities

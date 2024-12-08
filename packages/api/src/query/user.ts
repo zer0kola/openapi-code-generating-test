@@ -10,8 +10,8 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
+import type { User } from "../";
 import { APIResponseData, UserApi } from "../";
-import type { User } from "../types";
 
 /**
  * No description

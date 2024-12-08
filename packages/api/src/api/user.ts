@@ -9,8 +9,8 @@
  * ---------------------------------------------------------------
  */
 
+import type { User } from "../";
 import { apiInstance } from "../config/api-instance";
-import type { User } from "../types";
 
 export const UserApi = {
   /**

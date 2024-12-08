@@ -10,8 +10,8 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
+import type { Pet } from "../";
 import { APIResponseData, PetApi } from "../";
-import type { Pet } from "../types";
 
 /**
  * @description Multiple status values can be provided with comma separated strings
