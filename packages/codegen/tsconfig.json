@@ -6,6 +6,6 @@
       "@repo/codegen/*": ["./src/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "cli"],
   "exclude": ["node_modules"]
 }

@@ -16,6 +16,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@apidevtools/swagger-parser": "^10.1.0",
     "@eslint/compat": "^1.2.2",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
@@ -30,11 +31,11 @@
     "postcss": "^8.4.47",
     "prettier": "^3.3.3",
     "swagger-typescript-api": "^13.0.23",
+    "ts-node": "^10.9.2",
     "tsx": "^4.7.1",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.12.2",
-    "typescript-json-schema": "^0.65.1",
-    "ts-node": "^10.9.2"
+    "typescript-json-schema": "^0.65.1"
   },
   "exports": {
     ".": "./src/index.ts"
