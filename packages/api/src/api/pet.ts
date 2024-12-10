@@ -32,7 +32,6 @@ export const PetApi = {
     const endpoint = `/pet/${petId}/uploadImage`;
     const options = {
       params: {
-        petId,
         additionalMetadata,
         file,
       },
@@ -151,7 +150,6 @@ export const PetApi = {
     const endpoint = `/pet/${petId}`;
     const options = {
       params: {
-        petId,
         name,
         status,
       },
@@ -174,9 +172,6 @@ export const PetApi = {
     const options = {
       headers: {
         api_key: apiKey,
-      },
-      params: {
-        petId,
       },
     };
 

@@ -9,8 +9,8 @@
  * ---------------------------------------------------------------
  */
 
-import type { Order } from "../";
-import { apiInstance } from "../config/api-instance";
+import type { Order } from '../';
+import { apiInstance } from '../config/api-instance';
 
 export const StoreApi = {
   /**
@@ -22,7 +22,7 @@ export const StoreApi = {
    * @secure */
 
   async getInventory<T = Record<string, number>>() {
-    const method = "get";
+    const method = 'get';
     const endpoint = `/store/inventory`;
     const options = undefined;
 
@@ -37,7 +37,7 @@ export const StoreApi = {
    * @request POST:/store/order */
 
   async placeOrder(payload: Order) {
-    const method = "post";
+    const method = 'post';
     const endpoint = `/store/order`;
     const options = payload;
 
@@ -51,9 +51,9 @@ export const StoreApi = {
    * @summary Find purchase order by ID
    * @request GET:/store/order/{orderId} */
 
-  async getOrderById<T = Order>(payload: { orderId: number }) {
-    const method = "get";
-    const endpoint = `/store/order/${payload.orderId}`;
+  async getOrderById<T = Order>(orderId: number) {
+    const method = 'get';
+    const endpoint = `/store/order/${orderId}`;
     const options = undefined;
 
     return await apiInstance[method]<T>(endpoint, options);
@@ -66,9 +66,9 @@ export const StoreApi = {
    * @summary Delete purchase order by ID
    * @request DELETE:/store/order/{orderId} */
 
-  async deleteOrder(payload: { orderId: number }) {
-    const method = "delete";
-    const endpoint = `/store/order/${payload.orderId}`;
+  async deleteOrder(orderId: number) {
+    const method = 'delete';
+    const endpoint = `/store/order/${orderId}`;
     const options = undefined;
 
     return await apiInstance[method](endpoint, options);
