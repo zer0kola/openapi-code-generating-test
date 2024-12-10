@@ -9,8 +9,8 @@
  * ---------------------------------------------------------------
  */
 
-import type { Pet } from "../";
-import { apiInstance } from "../config/api-instance";
+import type { Pet } from '../';
+import { apiInstance } from '../config/api-instance';
 
 export const PetApi = {
   /**
@@ -21,16 +21,22 @@ export const PetApi = {
    * @request POST:/pet/{petId}/uploadImage
    * @secure */
 
-  async uploadFile(payload: {
-    petId: number;
+  async uploadFile(
+    petId: number,
     /** Additional data to pass to server */
-    additionalMetadata?: string;
+    additionalMetadata?: string,
     /** file to upload */
-    file?: File;
-  }) {
-    const method = "post";
-    const endpoint = `/pet/${payload.petId}/uploadImage`;
-    const options = payload;
+    file?: File,
+  ) {
+    const method = 'post';
+    const endpoint = `/pet/${petId}/uploadImage`;
+    const options = {
+      params: {
+        petId,
+        additionalMetadata,
+        file,
+      },
+    };
 
     return await apiInstance[method](endpoint, options);
   },
@@ -44,7 +50,7 @@ export const PetApi = {
    * @secure */
 
   async addPet(payload: Pet) {
-    const method = "post";
+    const method = 'post';
     const endpoint = `/pet`;
     const options = payload;
 
@@ -60,7 +66,7 @@ export const PetApi = {
    * @secure */
 
   async updatePet(payload: Pet) {
-    const method = "put";
+    const method = 'put';
     const endpoint = `/pet`;
     const options = payload;
 
@@ -75,10 +81,16 @@ export const PetApi = {
    * @request GET:/pet/findByStatus
    * @secure */
 
-  async findPetsByStatus<T = Pet[]>() {
-    const method = "get";
+  async findPetsByStatus<T = Pet[]>(
+    status: 'available' | 'pending' | 'sold'[],
+  ) {
+    const method = 'get';
     const endpoint = `/pet/findByStatus`;
-    const options = undefined;
+    const options = {
+      params: {
+        status,
+      },
+    };
 
     return await apiInstance[method]<T>(endpoint, options);
   },
@@ -92,10 +104,14 @@ export const PetApi = {
    * @deprecated
    * @secure */
 
-  async findPetsByTags<T = Pet[]>() {
-    const method = "get";
+  async findPetsByTags<T = Pet[]>(tags: string[]) {
+    const method = 'get';
     const endpoint = `/pet/findByTags`;
-    const options = undefined;
+    const options = {
+      params: {
+        tags,
+      },
+    };
 
     return await apiInstance[method]<T>(endpoint, options);
   },
@@ -108,9 +124,9 @@ export const PetApi = {
    * @request GET:/pet/{petId}
    * @secure */
 
-  async getPetById<T = Pet>(payload: { petId: number }) {
-    const method = "get";
-    const endpoint = `/pet/${payload.petId}`;
+  async getPetById<T = Pet>(petId: number) {
+    const method = 'get';
+    const endpoint = `/pet/${petId}`;
     const options = undefined;
 
     return await apiInstance[method]<T>(endpoint, options);
@@ -124,16 +140,22 @@ export const PetApi = {
    * @request POST:/pet/{petId}
    * @secure */
 
-  async updatePetWithForm(payload: {
-    petId: number;
+  async updatePetWithForm(
+    petId: number,
     /** Updated name of the pet */
-    name?: string;
+    name?: string,
     /** Updated status of the pet */
-    status?: string;
-  }) {
-    const method = "post";
-    const endpoint = `/pet/${payload.petId}`;
-    const options = payload;
+    status?: string,
+  ) {
+    const method = 'post';
+    const endpoint = `/pet/${petId}`;
+    const options = {
+      params: {
+        petId,
+        name,
+        status,
+      },
+    };
 
     return await apiInstance[method](endpoint, options);
   },
@@ -146,10 +168,17 @@ export const PetApi = {
    * @request DELETE:/pet/{petId}
    * @secure */
 
-  async deletePet(payload: { petId: number }) {
-    const method = "delete";
-    const endpoint = `/pet/${payload.petId}`;
-    const options = undefined;
+  async deletePet(apiKey: string, petId: number) {
+    const method = 'delete';
+    const endpoint = `/pet/${petId}`;
+    const options = {
+      headers: {
+        api_key: apiKey,
+      },
+      params: {
+        petId,
+      },
+    };
 
     return await apiInstance[method](endpoint, options);
   },
