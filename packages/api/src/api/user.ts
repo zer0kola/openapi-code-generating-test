@@ -9,8 +9,8 @@
  * ---------------------------------------------------------------
  */
 
-import type { User } from "../";
-import { apiInstance } from "../config/api-instance";
+import type { User } from '../';
+import { apiInstance } from '../config/api-instance';
 
 export const UserApi = {
   /**
@@ -21,7 +21,7 @@ export const UserApi = {
    * @request POST:/user/createWithList */
 
   async createUsersWithListInput(payload: User[]) {
-    const method = "post";
+    const method = 'post';
     const endpoint = `/user/createWithList`;
     const options = payload;
 
@@ -35,9 +35,9 @@ export const UserApi = {
    * @summary Get user by user name
    * @request GET:/user/{username} */
 
-  async getUserByName<T = User>(payload: { username: string }) {
-    const method = "get";
-    const endpoint = `/user/${payload.username}`;
+  async getUserByName<T = User>(username: string) {
+    const method = 'get';
+    const endpoint = `/user/${username}`;
     const options = undefined;
 
     return await apiInstance[method]<T>(endpoint, options);
@@ -50,10 +50,10 @@ export const UserApi = {
    * @summary Updated user
    * @request PUT:/user/{username} */
 
-  async updateUser(payload: { username: string; user: User }) {
-    const method = "put";
-    const endpoint = `/user/${payload.username}`;
-    const options = payload;
+  async updateUser(username: string, user: User) {
+    const method = 'put';
+    const endpoint = `/user/${username}`;
+    const options = user;
 
     return await apiInstance[method](endpoint, options);
   },
@@ -65,9 +65,9 @@ export const UserApi = {
    * @summary Delete user
    * @request DELETE:/user/{username} */
 
-  async deleteUser(payload: { username: string }) {
-    const method = "delete";
-    const endpoint = `/user/${payload.username}`;
+  async deleteUser(username: string) {
+    const method = 'delete';
+    const endpoint = `/user/${username}`;
     const options = undefined;
 
     return await apiInstance[method](endpoint, options);
@@ -80,10 +80,15 @@ export const UserApi = {
    * @summary Logs user into the system
    * @request GET:/user/login */
 
-  async loginUser<T = string>() {
-    const method = "get";
+  async loginUser<T = string>(username: string, password: string) {
+    const method = 'get';
     const endpoint = `/user/login`;
-    const options = undefined;
+    const options = {
+      params: {
+        username,
+        password,
+      },
+    };
 
     return await apiInstance[method]<T>(endpoint, options);
   },
@@ -96,7 +101,7 @@ export const UserApi = {
    * @request GET:/user/logout */
 
   async logoutUser<T = any>() {
-    const method = "get";
+    const method = 'get';
     const endpoint = `/user/logout`;
     const options = undefined;
 
@@ -111,7 +116,7 @@ export const UserApi = {
    * @request POST:/user/createWithArray */
 
   async createUsersWithArrayInput(payload: User[]) {
-    const method = "post";
+    const method = 'post';
     const endpoint = `/user/createWithArray`;
     const options = payload;
 
@@ -126,7 +131,7 @@ export const UserApi = {
    * @request POST:/user */
 
   async createUser(payload: User) {
-    const method = "post";
+    const method = 'post';
     const endpoint = `/user`;
     const options = payload;
 
